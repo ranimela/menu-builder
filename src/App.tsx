@@ -23,7 +23,7 @@ const FOOD_DATABASE = defaultFoodDb as FoodItem[];
 
 // Default day configurations in g/kg (TargetRatios)
 const INITIAL_RATIOS: Record<'sun_thu' | 'fri' | 'sat', TargetRatios> = {
-  sun_thu: { proteinPerKg: 2.0, carbsPerKg: 2.25, fatPerKg: 0.875 },
+  sun_thu: { proteinPerKg: 2.0, carbsPerKg: 2.5, fatPerKg: 0.7 },
   fri: { proteinPerKg: 1.875, carbsPerKg: 2.625, fatPerKg: 1.0 },
   sat: { proteinPerKg: 2.125, carbsPerKg: 3.0, fatPerKg: 1.1875 },
 };
@@ -112,7 +112,7 @@ export const App: React.FC = () => {
   const [activeDay, setActiveDay] = useState<'sun_thu' | 'fri' | 'sat'>('sun_thu');
   
   // User weight in kg (global)
-  const [weight, setWeight] = useState<number>(80);
+  const [weight, setWeight] = useState<number>(71);
 
   // Day Plans state
   const [dayPlans, setDayPlans] = useState<Record<'sun_thu' | 'fri' | 'sat', DayPlan>>(() => ({
