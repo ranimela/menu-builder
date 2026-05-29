@@ -82,7 +82,7 @@ function createDefaultMeals(dayId: 'sun_thu' | 'fri' | 'sat'): Meal[] {
         id: 'omad_meal',
         name: 'OMAD Meal',
         foods: [
-          { foodId: 'beef', quantity: 400, locked: false },
+          { foodId: 'beef', quantity: 400, locked: true },
           { foodId: 'white_rice', quantity: 200, locked: false },
           { foodId: 'mixed_salad', quantity: 250, locked: false },
           { foodId: 'whey_protein', quantity: 1, locked: false },
