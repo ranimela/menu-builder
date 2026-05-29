@@ -395,6 +395,22 @@ export const App: React.FC = () => {
   const carbDelta = Math.round(actualTotals.carbs - currentPlanTargets.carbs);
   const fatDelta = Math.round(actualTotals.fat - currentPlanTargets.fat);
 
+  const targetCalRatio = weight > 0 ? Math.round((currentPlanTargets.calories / weight) * 10) / 10 : 0;
+  const actualCalRatio = weight > 0 ? Math.round((actualTotals.calories / weight) * 10) / 10 : 0;
+  const calRatioDelta = Math.round((actualCalRatio - targetCalRatio) * 10) / 10;
+
+  const targetProRatio = currentPlan.ratios.proteinPerKg;
+  const actualProRatio = weight > 0 ? Math.round((actualTotals.protein / weight) * 100) / 100 : 0;
+  const proRatioDelta = Math.round((actualProRatio - targetProRatio) * 100) / 100;
+
+  const targetCarbRatio = currentPlan.ratios.carbsPerKg;
+  const actualCarbRatio = weight > 0 ? Math.round((actualTotals.carbs / weight) * 100) / 100 : 0;
+  const carbRatioDelta = Math.round((actualCarbRatio - targetCarbRatio) * 100) / 100;
+
+  const targetFatRatio = currentPlan.ratios.fatPerKg;
+  const actualFatRatio = weight > 0 ? Math.round((actualTotals.fat / weight) * 100) / 100 : 0;
+  const fatRatioDelta = Math.round((actualFatRatio - targetFatRatio) * 100) / 100;
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-purple-500 selection:text-white pb-16">
       
@@ -691,6 +707,75 @@ export const App: React.FC = () => {
                   className="bg-gradient-to-r from-sky-500 to-indigo-400 h-2.5 rounded-full transition-all duration-500" 
                   style={{ width: `${fatPct}%` }}
                 />
+              </div>
+            </div>
+
+          </div>
+
+          {/* Planned vs. Actual Macro Ratios Row */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 border-t border-slate-800/50 pt-6">
+            
+            {/* Calories Ratio Card */}
+            <div className="bg-slate-950/40 border border-slate-800 p-5 rounded-xl flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-2">
+                  <span>CALORIES RATIO</span>
+                  <span className={`${calRatioDelta > 1 ? 'text-rose-400' : calRatioDelta < -1 ? 'text-amber-400' : 'text-emerald-400'} font-bold`}>
+                    {calRatioDelta > 0 ? `+${calRatioDelta}` : calRatioDelta} kcal/kg
+                  </span>
+                </div>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-2xl font-extrabold text-orange-400">{actualCalRatio}</span>
+                  <span className="text-xs text-slate-500">/ {targetCalRatio} kcal/kg</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Protein Ratio Card */}
+            <div className="bg-slate-950/40 border border-slate-800 p-5 rounded-xl flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-2">
+                  <span>PROTEIN RATIO</span>
+                  <span className={`${proRatioDelta > 0.05 ? 'text-rose-400' : proRatioDelta < -0.05 ? 'text-amber-400' : 'text-emerald-400'} font-bold`}>
+                    {proRatioDelta > 0 ? `+${proRatioDelta}` : proRatioDelta} g/kg
+                  </span>
+                </div>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-2xl font-extrabold text-rose-400">{actualProRatio}</span>
+                  <span className="text-xs text-slate-500">/ {targetProRatio} g/kg</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Carbs Ratio Card */}
+            <div className="bg-slate-950/40 border border-slate-800 p-5 rounded-xl flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-2">
+                  <span>CARBS RATIO</span>
+                  <span className={`${carbRatioDelta > 0.1 ? 'text-rose-400' : carbRatioDelta < -0.1 ? 'text-amber-400' : 'text-emerald-400'} font-bold`}>
+                    {carbRatioDelta > 0 ? `+${carbRatioDelta}` : carbRatioDelta} g/kg
+                  </span>
+                </div>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-2xl font-extrabold text-amber-455">{actualCarbRatio}</span>
+                  <span className="text-xs text-slate-500">/ {targetCarbRatio} g/kg</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Fat Ratio Card */}
+            <div className="bg-slate-950/40 border border-slate-800 p-5 rounded-xl flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-2">
+                  <span>FAT RATIO</span>
+                  <span className={`${fatRatioDelta > 0.05 ? 'text-rose-400' : fatRatioDelta < -0.05 ? 'text-amber-400' : 'text-emerald-400'} font-bold`}>
+                    {fatRatioDelta > 0 ? `+${fatRatioDelta}` : fatRatioDelta} g/kg
+                  </span>
+                </div>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-2xl font-extrabold text-sky-400">{actualFatRatio}</span>
+                  <span className="text-xs text-slate-500">/ {targetFatRatio} g/kg</span>
+                </div>
               </div>
             </div>
 
