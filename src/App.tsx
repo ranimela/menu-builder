@@ -24,8 +24,8 @@ const FOOD_DATABASE = defaultFoodDb as FoodItem[];
 // Default day configurations in g/kg (TargetRatios)
 const INITIAL_RATIOS: Record<'sun_thu' | 'fri' | 'sat', TargetRatios> = {
   sun_thu: { proteinPerKg: 2.0, carbsPerKg: 2.5, fatPerKg: 0.7 },
-  fri: { proteinPerKg: 1.875, carbsPerKg: 2.625, fatPerKg: 1.0 },
-  sat: { proteinPerKg: 2.125, carbsPerKg: 3.0, fatPerKg: 1.1875 },
+  fri: { proteinPerKg: 2.0, carbsPerKg: 2.5, fatPerKg: 0.7 },
+  sat: { proteinPerKg: 2.0, carbsPerKg: 2.5, fatPerKg: 0.7 },
 };
 
 function isFoodAllowed(_foodId: string, _dayId: 'sun_thu' | 'fri' | 'sat', _mealId: string): boolean {
