@@ -496,7 +496,7 @@ export const App: React.FC = () => {
                 <div className="flex items-end gap-1">
                   <input
                     type="number"
-                    step="0.05"
+                    step="0.1"
                     value={currentPlan.ratios.proteinPerKg}
                     onChange={(e) => handleRatioChange('proteinPerKg', parseFloat(e.target.value) || 0)}
                     className="w-full bg-slate-900 border border-slate-800 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 text-lg font-bold px-2 py-1 rounded-lg text-slate-100 outline-none transition"
@@ -513,7 +513,7 @@ export const App: React.FC = () => {
                 <div className="flex items-end gap-1">
                   <input
                     type="number"
-                    step="0.05"
+                    step="0.1"
                     value={currentPlan.ratios.carbsPerKg}
                     onChange={(e) => handleRatioChange('carbsPerKg', parseFloat(e.target.value) || 0)}
                     className="w-full bg-slate-900 border border-slate-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-lg font-bold px-2 py-1 rounded-lg text-slate-100 outline-none transition"
@@ -530,7 +530,7 @@ export const App: React.FC = () => {
                 <div className="flex items-end gap-1">
                   <input
                     type="number"
-                    step="0.05"
+                    step="0.1"
                     value={currentPlan.ratios.fatPerKg}
                     onChange={(e) => handleRatioChange('fatPerKg', parseFloat(e.target.value) || 0)}
                     className="w-full bg-slate-900 border border-slate-800 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 text-lg font-bold px-2 py-1 rounded-lg text-slate-100 outline-none transition"
