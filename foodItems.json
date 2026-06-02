@@ -293,7 +293,8 @@
     "maxQuantity": 100,
     "isFreeParameter": false,
     "isMandatory": false,
-    "preconditions": []
+    "preconditions": [],
+    "step": 5
   },
   {
     "id": "flax_seeds",
@@ -309,7 +310,8 @@
     "maxQuantity": 50,
     "isFreeParameter": false,
     "isMandatory": false,
-    "preconditions": []
+    "preconditions": [],
+    "step": 5
   },
   {
     "id": "medjool_dates",
@@ -411,5 +413,22 @@
     "isMandatory": false,
     "preconditions": [],
     "step": 10
+  },
+  {
+    "id": "popcorn_air_popped",
+    "name": "Popcorn (Air Popped)",
+    "calories": 120,
+    "protein": 4.0,
+    "carbs": 24.0,
+    "fat": 1.5,
+    "servingSize": 1,
+    "unit": "cup kernels",
+    "defaultQuantity": 0.25,
+    "minQuantity": 0,
+    "maxQuantity": 2.0,
+    "isFreeParameter": false,
+    "isMandatory": false,
+    "preconditions": [],
+    "step": 0.25
   }
 ]
