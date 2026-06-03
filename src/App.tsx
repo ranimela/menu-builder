@@ -331,9 +331,9 @@ export const App: React.FC = () => {
     const timestamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
 
     // Compute actual vs target ratios
-    const actProRatio = weight > 0 ? Math.round((actualTotals.protein / weight) * 100) / 100 : 0;
-    const actCarbRatio = weight > 0 ? Math.round((actualTotals.carbs / weight) * 100) / 100 : 0;
-    const actFatRatio = weight > 0 ? Math.round((actualTotals.fat / weight) * 100) / 100 : 0;
+    const actProRatio = weight > 0 ? Math.round((actualTotals.protein / weight) * 10) / 10 : 0;
+    const actCarbRatio = weight > 0 ? Math.round((actualTotals.carbs / weight) * 10) / 10 : 0;
+    const actFatRatio = weight > 0 ? Math.round((actualTotals.fat / weight) * 10) / 10 : 0;
 
     // Generate Note text
     let text = `# Meal Plan: ${currentPlan.name} (${weight}kg) [${timestamp}]\n\n`;
@@ -413,16 +413,16 @@ export const App: React.FC = () => {
   const calRatioDelta = Math.round((actualCalRatio - targetCalRatio) * 10) / 10;
 
   const targetProRatio = currentPlan.ratios.proteinPerKg;
-  const actualProRatio = weight > 0 ? Math.round((actualTotals.protein / weight) * 100) / 100 : 0;
-  const proRatioDelta = Math.round((actualProRatio - targetProRatio) * 100) / 100;
+  const actualProRatio = weight > 0 ? Math.round((actualTotals.protein / weight) * 10) / 10 : 0;
+  const proRatioDelta = Math.round((actualProRatio - targetProRatio) * 10) / 10;
 
   const targetCarbRatio = currentPlan.ratios.carbsPerKg;
-  const actualCarbRatio = weight > 0 ? Math.round((actualTotals.carbs / weight) * 100) / 100 : 0;
-  const carbRatioDelta = Math.round((actualCarbRatio - targetCarbRatio) * 100) / 100;
+  const actualCarbRatio = weight > 0 ? Math.round((actualTotals.carbs / weight) * 10) / 10 : 0;
+  const carbRatioDelta = Math.round((actualCarbRatio - targetCarbRatio) * 10) / 10;
 
   const targetFatRatio = currentPlan.ratios.fatPerKg;
-  const actualFatRatio = weight > 0 ? Math.round((actualTotals.fat / weight) * 100) / 100 : 0;
-  const fatRatioDelta = Math.round((actualFatRatio - targetFatRatio) * 100) / 100;
+  const actualFatRatio = weight > 0 ? Math.round((actualTotals.fat / weight) * 10) / 10 : 0;
+  const fatRatioDelta = Math.round((actualFatRatio - targetFatRatio) * 10) / 10;
 
   return (
     <div className="min-h-screen bg-brand-bg text-brand-primary font-sans selection:bg-brand-secondary selection:text-brand-primary pb-16">
