@@ -339,8 +339,8 @@ export const App: React.FC = () => {
     let text = `# Meal Plan: ${currentPlan.name} (${weight}kg) [${timestamp}]\n\n`;
     text += `Target Macros: ${Math.round(currentPlanTargets.calories)} kcal | ${Math.round(currentPlanTargets.protein)}g P | ${Math.round(currentPlanTargets.carbs)}g C | ${Math.round(currentPlanTargets.fat)}g F\n`;
     text += `Actual Macros: ${Math.round(actualTotals.calories)} kcal | ${Math.round(actualTotals.protein * 10) / 10}g P | ${Math.round(actualTotals.carbs * 10) / 10}g C | ${Math.round(actualTotals.fat * 10) / 10}g F\n`;
-    text += `Target Ratios: ${currentPlan.ratios.proteinPerKg}g/kg P | ${currentPlan.ratios.carbsPerKg}g/kg C | ${currentPlan.ratios.fatPerKg}g/kg F\n`;
-    text += `Actual Ratios: ${actProRatio}g/kg P | ${actCarbRatio}g/kg C | ${actFatRatio}g/kg F\n\n`;
+    text += `Target Ratios: ${currentPlan.ratios.proteinPerKg.toFixed(1)}g/kg P | ${currentPlan.ratios.carbsPerKg.toFixed(1)}g/kg C | ${currentPlan.ratios.fatPerKg.toFixed(1)}g/kg F\n`;
+    text += `Actual Ratios: ${actProRatio.toFixed(1)}g/kg P | ${actCarbRatio.toFixed(1)}g/kg C | ${actFatRatio.toFixed(1)}g/kg F\n\n`;
 
     text += `## Meals:\n`;
     for (const meal of currentPlan.meals) {
