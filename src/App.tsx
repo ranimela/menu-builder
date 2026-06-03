@@ -330,10 +330,17 @@ export const App: React.FC = () => {
     const pad = (n: number) => n.toString().padStart(2, '0');
     const timestamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
 
+    // Compute actual vs target ratios
+    const actProRatio = weight > 0 ? Math.round((actualTotals.protein / weight) * 100) / 100 : 0;
+    const actCarbRatio = weight > 0 ? Math.round((actualTotals.carbs / weight) * 100) / 100 : 0;
+    const actFatRatio = weight > 0 ? Math.round((actualTotals.fat / weight) * 100) / 100 : 0;
+
     // Generate Note text
     let text = `# Meal Plan: ${currentPlan.name} (${weight}kg) [${timestamp}]\n\n`;
-    text += `Target: ${Math.round(currentPlanTargets.calories)} kcal | ${Math.round(currentPlanTargets.protein)}g P | ${Math.round(currentPlanTargets.carbs)}g C | ${Math.round(currentPlanTargets.fat)}g F\n`;
-    text += `Actual: ${Math.round(actualTotals.calories)} kcal | ${Math.round(actualTotals.protein * 10) / 10}g P | ${Math.round(actualTotals.carbs * 10) / 10}g C | ${Math.round(actualTotals.fat * 10) / 10}g F\n\n`;
+    text += `Target Macros: ${Math.round(currentPlanTargets.calories)} kcal | ${Math.round(currentPlanTargets.protein)}g P | ${Math.round(currentPlanTargets.carbs)}g C | ${Math.round(currentPlanTargets.fat)}g F\n`;
+    text += `Actual Macros: ${Math.round(actualTotals.calories)} kcal | ${Math.round(actualTotals.protein * 10) / 10}g P | ${Math.round(actualTotals.carbs * 10) / 10}g C | ${Math.round(actualTotals.fat * 10) / 10}g F\n`;
+    text += `Target Ratios: ${currentPlan.ratios.proteinPerKg}g/kg P | ${currentPlan.ratios.carbsPerKg}g/kg C | ${currentPlan.ratios.fatPerKg}g/kg F\n`;
+    text += `Actual Ratios: ${actProRatio}g/kg P | ${actCarbRatio}g/kg C | ${actFatRatio}g/kg F\n\n`;
 
     text += `## Meals:\n`;
     for (const meal of currentPlan.meals) {
