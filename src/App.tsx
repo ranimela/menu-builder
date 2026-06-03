@@ -494,7 +494,7 @@ export const App: React.FC = () => {
                   <input
                     type="number"
                     step="0.1"
-                    value={weight}
+                    value={weight.toFixed(1)}
                     onChange={(e) => setWeight(parseFloat(e.target.value) || 0)}
                     className="w-full bg-brand-card border border-brand-border focus:border-brand-accent focus:ring-1 focus:ring-brand-accent text-lg font-bold px-2 py-1 rounded-lg text-brand-primary outline-none transition"
                   />
@@ -511,7 +511,7 @@ export const App: React.FC = () => {
                   <input
                     type="number"
                     step="0.1"
-                    value={currentPlan.ratios.proteinPerKg}
+                    value={currentPlan.ratios.proteinPerKg.toFixed(1)}
                     onChange={(e) => handleRatioChange('proteinPerKg', parseFloat(e.target.value) || 0)}
                     className="w-full bg-brand-card border border-brand-border focus:border-rose-500 focus:ring-1 focus:ring-rose-500 text-lg font-bold px-2 py-1 rounded-lg text-brand-primary outline-none transition"
                   />
@@ -528,7 +528,7 @@ export const App: React.FC = () => {
                   <input
                     type="number"
                     step="0.1"
-                    value={currentPlan.ratios.carbsPerKg}
+                    value={currentPlan.ratios.carbsPerKg.toFixed(1)}
                     onChange={(e) => handleRatioChange('carbsPerKg', parseFloat(e.target.value) || 0)}
                     className="w-full bg-brand-card border border-brand-border focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-lg font-bold px-2 py-1 rounded-lg text-brand-primary outline-none transition"
                   />
@@ -545,7 +545,7 @@ export const App: React.FC = () => {
                   <input
                     type="number"
                     step="0.1"
-                    value={currentPlan.ratios.fatPerKg}
+                    value={currentPlan.ratios.fatPerKg.toFixed(1)}
                     onChange={(e) => handleRatioChange('fatPerKg', parseFloat(e.target.value) || 0)}
                     className="w-full bg-brand-card border border-brand-border focus:border-sky-500 focus:ring-1 focus:ring-sky-500 text-lg font-bold px-2 py-1 rounded-lg text-brand-primary outline-none transition"
                   />
