@@ -1,4 +1,4 @@
-const CACHE_NAME = 'menu-builder-v2';
+const CACHE_NAME = 'menu-builder-v3';
 const ASSETS = [
   '/menu-builder/',
   '/menu-builder/index.html',
@@ -31,6 +31,11 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Only handle HTTP/HTTPS requests (avoid breaking on chrome-extension://, etc.)
+  if (!event.request.url.startsWith('http')) {
+    return;
+  }
+
   // Use Network-First strategy so that changes are seen immediately when online,
   // falling back to cache if offline.
   event.respondWith(
