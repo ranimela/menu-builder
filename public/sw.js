@@ -1,4 +1,4 @@
-const CACHE_NAME = 'menu-builder-v1';
+const CACHE_NAME = 'menu-builder-v2';
 const ASSETS = [
   '/menu-builder/',
   '/menu-builder/index.html',
@@ -31,13 +31,11 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Use Network-First strategy so that changes are seen immediately when online,
+  // falling back to cache if offline.
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).then((response) => {
-        // Cache newly fetched assets if they belong to our origin
+    fetch(event.request)
+      .then((response) => {
         if (response && response.status === 200 && response.type === 'basic') {
           const responseToCache = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
@@ -45,12 +43,16 @@ self.addEventListener('fetch', (event) => {
           });
         }
         return response;
-      }).catch(() => {
-        // Fallback for document or image when offline
-        if (event.request.mode === 'navigate') {
-          return caches.match('/menu-builder/index.html');
-        }
-      });
-    })
+      })
+      .catch(() => {
+        return caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          if (event.request.mode === 'navigate') {
+            return caches.match('/menu-builder/index.html');
+          }
+        });
+      })
   );
 });
