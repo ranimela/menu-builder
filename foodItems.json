@@ -14,7 +14,8 @@
     "isFreeParameter": false,
     "isMandatory": true,
     "preconditions": [],
-    "step": 10
+    "step": 10,
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/171477/nutrients"
   },
   {
     "id": "white_rice",
@@ -31,7 +32,8 @@
     "isFreeParameter": true,
     "isMandatory": true,
     "preconditions": [],
-    "step": 10
+    "step": 10,
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169757/nutrients"
   },
   {
     "id": "olive_oil",
@@ -47,7 +49,8 @@
     "maxQuantity": 50,
     "isFreeParameter": true,
     "isMandatory": false,
-    "preconditions": []
+    "preconditions": [],
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/172275/nutrients"
   },
   {
     "id": "whole_egg",
@@ -63,7 +66,8 @@
     "maxQuantity": 6,
     "isFreeParameter": false,
     "isMandatory": false,
-    "preconditions": []
+    "preconditions": [],
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/171287/nutrients"
   },
   {
     "id": "whey_protein",
@@ -80,7 +84,8 @@
     "isFreeParameter": true,
     "isMandatory": true,
     "preconditions": [],
-    "step": 0.5
+    "step": 0.5,
+    "source": "https://www.nutritionvalue.org/Whey_protein_powder_nutritional_value.html"
   },
   {
     "id": "sweet_potatoes",
@@ -96,7 +101,8 @@
     "maxQuantity": 500,
     "isFreeParameter": true,
     "isMandatory": false,
-    "preconditions": []
+    "preconditions": [],
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/168483/nutrients"
   },
   {
     "id": "majadra",
@@ -112,7 +118,8 @@
     "maxQuantity": 500,
     "isFreeParameter": false,
     "isMandatory": false,
-    "preconditions": []
+    "preconditions": [],
+    "source": "https://www.nutritionvalue.org/Mujadara_by_Tarazi_Specialty_Foods_763660_nutrition.html"
   },
   {
     "id": "rice_noodles",
@@ -128,7 +135,8 @@
     "maxQuantity": 500,
     "isFreeParameter": false,
     "isMandatory": false,
-    "preconditions": []
+    "preconditions": [],
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169737/nutrients"
   },
   {
     "id": "quinoa",
@@ -144,7 +152,8 @@
     "maxQuantity": 500,
     "isFreeParameter": false,
     "isMandatory": false,
-    "preconditions": []
+    "preconditions": [],
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/168878/nutrients"
   },
   {
     "id": "tortilla_wrap",
@@ -160,7 +169,8 @@
     "maxQuantity": 2,
     "isFreeParameter": false,
     "isMandatory": true,
-    "preconditions": []
+    "preconditions": [],
+    "source": "https://www.nutritionvalue.org/Tortilla_wrap_960541_nutrition.html"
   },
   {
     "id": "hummus",
@@ -177,7 +187,8 @@
     "isFreeParameter": true,
     "isMandatory": true,
     "preconditions": [],
-    "step": 10
+    "step": 10,
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/173757/nutrients"
   },
   {
     "id": "canned_sardines",
@@ -193,7 +204,8 @@
     "maxQuantity": 200,
     "isFreeParameter": false,
     "isMandatory": false,
-    "preconditions": []
+    "preconditions": [],
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/175139/nutrients"
   },
   {
     "id": "mixed_salad",
@@ -210,7 +222,8 @@
     "isFreeParameter": false,
     "isMandatory": true,
     "preconditions": [],
-    "step": 50
+    "step": 50,
+    "source": "https://www.nutritionvalue.org/Mixed_salad_greens_925925_nutrition.html"
   },
   {
     "id": "white_cheese_5",
@@ -227,7 +240,8 @@
     "isFreeParameter": true,
     "isMandatory": true,
     "preconditions": [],
-    "step": 50
+    "step": 50,
+    "source": "https://www.tnuva.co.il/products/cheese/white-cheese/"
   },
   {
     "id": "potatoes",
@@ -243,7 +257,8 @@
     "maxQuantity": 500,
     "isFreeParameter": false,
     "isMandatory": false,
-    "preconditions": []
+    "preconditions": [],
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170093/nutrients"
   },
   {
     "id": "beef",
@@ -260,7 +275,8 @@
     "isFreeParameter": false,
     "isMandatory": false,
     "preconditions": [],
-    "step": 50
+    "step": 50,
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170208/nutrients"
   },
   {
     "id": "salmon",
@@ -277,7 +293,8 @@
     "isFreeParameter": false,
     "isMandatory": false,
     "preconditions": [],
-    "step": 50
+    "step": 50,
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/173690/nutrients"
   },
   {
     "id": "pumpkin_seeds",
@@ -294,7 +311,8 @@
     "isFreeParameter": false,
     "isMandatory": false,
     "preconditions": [],
-    "step": 5
+    "step": 5,
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170556/nutrients"
   },
   {
     "id": "flax_seeds",
@@ -311,7 +329,8 @@
     "isFreeParameter": false,
     "isMandatory": false,
     "preconditions": [],
-    "step": 5
+    "step": 5,
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169414/nutrients"
   },
   {
     "id": "medjool_dates",
@@ -328,7 +347,8 @@
     "isFreeParameter": false,
     "isMandatory": false,
     "preconditions": [],
-    "step": 1
+    "step": 1,
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/168191/nutrients"
   },
   {
     "id": "pasta",
@@ -345,7 +365,8 @@
     "isFreeParameter": false,
     "isMandatory": false,
     "preconditions": [],
-    "step": 50
+    "step": 50,
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169736/nutrients"
   },
   {
     "id": "sauerkraut",
@@ -361,7 +382,8 @@
     "maxQuantity": 200,
     "isFreeParameter": false,
     "isMandatory": false,
-    "preconditions": []
+    "preconditions": [],
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169833/nutrients"
   },
   {
     "id": "chocolate_70",
@@ -378,7 +400,8 @@
     "isFreeParameter": false,
     "isMandatory": false,
     "preconditions": [],
-    "step": 10
+    "step": 10,
+    "source": "https://www.nutritionvalue.org/Chocolate_70-85%25_cacao_906143_nutrition.html"
   },
   {
     "id": "broccoli_baked",
@@ -395,7 +418,8 @@
     "isFreeParameter": false,
     "isMandatory": false,
     "preconditions": [],
-    "step": 10
+    "step": 10,
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169970/nutrients"
   },
   {
     "id": "green_beans_sauteed",
@@ -412,7 +436,8 @@
     "isFreeParameter": false,
     "isMandatory": false,
     "preconditions": [],
-    "step": 10
+    "step": 10,
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169965/nutrients"
   },
   {
     "id": "popcorn_air_popped",
@@ -429,6 +454,7 @@
     "isFreeParameter": false,
     "isMandatory": false,
     "preconditions": [],
-    "step": 0.25
+    "step": 0.25,
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169704/nutrients"
   }
 ]
