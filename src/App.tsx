@@ -734,12 +734,12 @@ export const App: React.FC = () => {
                 <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-2">
                   <span>CALORIES RATIO</span>
                   <span className={`${calRatioDelta > 1 ? 'text-rose-600' : calRatioDelta < -1 ? 'text-amber-600' : 'text-emerald-600'} font-bold`}>
-                    {calRatioDelta > 0 ? `+${calRatioDelta}` : calRatioDelta} kcal/kg
+                    {calRatioDelta > 0 ? `+${calRatioDelta.toFixed(1)}` : calRatioDelta.toFixed(1)} kcal/kg
                   </span>
                 </div>
                 <div className="flex items-baseline gap-1.5">
-                  <span className="text-2xl font-extrabold text-orange-500">{actualCalRatio}</span>
-                  <span className="text-xs text-slate-500">/ {targetCalRatio} kcal/kg</span>
+                  <span className="text-2xl font-extrabold text-orange-500">{actualCalRatio.toFixed(1)}</span>
+                  <span className="text-xs text-slate-500">/ {targetCalRatio.toFixed(1)} kcal/kg</span>
                 </div>
               </div>
             </div>
@@ -754,8 +754,8 @@ export const App: React.FC = () => {
                   </span>
                 </div>
                 <div className="flex items-baseline gap-1.5">
-                  <span className="text-2xl font-extrabold text-rose-500">{actualProRatio}</span>
-                  <span className="text-xs text-slate-500">/ {targetProRatio} g/kg</span>
+                  <span className="text-2xl font-extrabold text-rose-500">{actualProRatio.toFixed(1)}</span>
+                  <span className="text-xs text-slate-500">/ {targetProRatio.toFixed(1)} g/kg</span>
                 </div>
               </div>
             </div>
@@ -766,12 +766,12 @@ export const App: React.FC = () => {
                 <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-2">
                   <span>CARBS RATIO</span>
                   <span className={`${carbRatioDelta > 0.1 ? 'text-rose-600' : carbRatioDelta < -0.1 ? 'text-amber-600' : 'text-emerald-600'} font-bold`}>
-                    {carbRatioDelta > 0 ? `+${carbRatioDelta}` : carbRatioDelta} g/kg
+                    {carbRatioDelta > 0 ? `+${carbRatioDelta.toFixed(1)}` : carbRatioDelta.toFixed(1)} g/kg
                   </span>
                 </div>
                 <div className="flex items-baseline gap-1.5">
-                  <span className="text-2xl font-extrabold text-amber-600">{actualCarbRatio}</span>
-                  <span className="text-xs text-slate-500">/ {targetCarbRatio} g/kg</span>
+                  <span className="text-2xl font-extrabold text-amber-600">{actualCarbRatio.toFixed(1)}</span>
+                  <span className="text-xs text-slate-500">/ {targetCarbRatio.toFixed(1)} g/kg</span>
                 </div>
               </div>
             </div>
@@ -782,12 +782,12 @@ export const App: React.FC = () => {
                 <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-2">
                   <span>FAT RATIO</span>
                   <span className={`${fatRatioDelta > 0.05 ? 'text-rose-600' : fatRatioDelta < -0.05 ? 'text-amber-600' : 'text-emerald-600'} font-bold`}>
-                    {fatRatioDelta > 0 ? `+${fatRatioDelta}` : fatRatioDelta} g/kg
+                    {fatRatioDelta > 0 ? `+${fatRatioDelta.toFixed(1)}` : fatRatioDelta.toFixed(1)} g/kg
                   </span>
                 </div>
                 <div className="flex items-baseline gap-1.5">
-                  <span className="text-2xl font-extrabold text-sky-500">{actualFatRatio}</span>
-                  <span className="text-xs text-slate-500">/ {targetFatRatio} g/kg</span>
+                  <span className="text-2xl font-extrabold text-sky-500">{actualFatRatio.toFixed(1)}</span>
+                  <span className="text-xs text-slate-500">/ {targetFatRatio.toFixed(1)} g/kg</span>
                 </div>
               </div>
             </div>
