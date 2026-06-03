@@ -1,0 +1,16 @@
+{
+  "short_name": "Menu Builder",
+  "name": "Macro-Constrained Menu Generator",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    }
+  ],
+  "start_url": "/menu-builder/",
+  "background_color": "#f8fafc",
+  "theme_color": "#1a2238",
+  "display": "standalone",
+  "orientation": "portrait"
+}
