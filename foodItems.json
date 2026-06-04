@@ -50,7 +50,7 @@
     "isFreeParameter": true,
     "isMandatory": false,
     "preconditions": [],
-    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/172275/nutrients"
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/171413/nutrients"
   },
   {
     "id": "whole_egg",
@@ -136,7 +136,7 @@
     "isFreeParameter": false,
     "isMandatory": false,
     "preconditions": [],
-    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169737/nutrients"
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/168914/nutrients"
   },
   {
     "id": "quinoa",
@@ -153,7 +153,7 @@
     "isFreeParameter": false,
     "isMandatory": false,
     "preconditions": [],
-    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/168878/nutrients"
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/168917/nutrients"
   },
   {
     "id": "tortilla_wrap",
@@ -294,7 +294,7 @@
     "isMandatory": false,
     "preconditions": [],
     "step": 50,
-    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/173690/nutrients"
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/175168/nutrients"
   },
   {
     "id": "pumpkin_seeds",
@@ -366,7 +366,7 @@
     "isMandatory": false,
     "preconditions": [],
     "step": 50,
-    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169736/nutrients"
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169737/nutrients"
   },
   {
     "id": "sauerkraut",
@@ -383,7 +383,7 @@
     "isFreeParameter": false,
     "isMandatory": false,
     "preconditions": [],
-    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169833/nutrients"
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169279/nutrients"
   },
   {
     "id": "chocolate_70",
@@ -419,7 +419,7 @@
     "isMandatory": false,
     "preconditions": [],
     "step": 10,
-    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169970/nutrients"
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169967/nutrients"
   },
   {
     "id": "green_beans_sauteed",
@@ -437,7 +437,7 @@
     "isMandatory": false,
     "preconditions": [],
     "step": 10,
-    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169965/nutrients"
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169141/nutrients"
   },
   {
     "id": "popcorn_air_popped",
@@ -455,6 +455,6 @@
     "isMandatory": false,
     "preconditions": [],
     "step": 0.25,
-    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169704/nutrients"
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169706/nutrients"
   }
 ]
