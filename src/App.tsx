@@ -111,11 +111,10 @@ function computeTargetMacros(weight: number, ratios: TargetRatios): TargetMacros
 interface DecimalInputProps {
   value: number;
   onChange: (val: number) => void;
-  step?: string;
   className?: string;
 }
 
-const DecimalInput: React.FC<DecimalInputProps> = ({ value, onChange, step = "0.1", className }) => {
+const DecimalInput: React.FC<DecimalInputProps> = ({ value, onChange, className }) => {
   const [localValue, setLocalValue] = useState(value.toFixed(1));
   const [isFocused, setIsFocused] = useState(false);
 
@@ -150,8 +149,8 @@ const DecimalInput: React.FC<DecimalInputProps> = ({ value, onChange, step = "0.
 
   return (
     <input
-      type="number"
-      step={step}
+      type="text"
+      inputMode="decimal"
       value={localValue}
       onChange={handleChange}
       onFocus={handleFocus}
