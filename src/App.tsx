@@ -175,6 +175,7 @@ const DecimalInput: React.FC<DecimalInputProps> = ({ value, onChange, className 
       <div className="absolute right-1.5 flex flex-col justify-center h-full">
         <button
           type="button"
+          tabIndex={-1}
           onClick={handleIncrement}
           className="p-0.5 text-slate-400 hover:text-brand-accent transition cursor-pointer leading-none"
         >
@@ -182,6 +183,7 @@ const DecimalInput: React.FC<DecimalInputProps> = ({ value, onChange, className 
         </button>
         <button
           type="button"
+          tabIndex={-1}
           onClick={handleDecrement}
           className="p-0.5 text-slate-400 hover:text-brand-accent transition cursor-pointer leading-none"
         >
