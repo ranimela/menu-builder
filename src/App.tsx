@@ -117,10 +117,13 @@ interface DecimalInputProps {
 
 const DecimalInput: React.FC<DecimalInputProps> = ({ value, onChange, step = "0.1", className }) => {
   const [localValue, setLocalValue] = useState(value.toFixed(1));
+  const [isFocused, setIsFocused] = useState(false);
 
   useEffect(() => {
-    setLocalValue(value.toFixed(1));
-  }, [value]);
+    if (!isFocused) {
+      setLocalValue(value.toFixed(1));
+    }
+  }, [value, isFocused]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const valStr = e.target.value;
@@ -131,7 +134,12 @@ const DecimalInput: React.FC<DecimalInputProps> = ({ value, onChange, step = "0.
     }
   };
 
+  const handleFocus = () => {
+    setIsFocused(true);
+  };
+
   const handleBlur = () => {
+    setIsFocused(false);
     const parsed = parseFloat(localValue);
     if (isNaN(parsed)) {
       setLocalValue(value.toFixed(1));
@@ -146,6 +154,7 @@ const DecimalInput: React.FC<DecimalInputProps> = ({ value, onChange, step = "0.
       step={step}
       value={localValue}
       onChange={handleChange}
+      onFocus={handleFocus}
       onBlur={handleBlur}
       className={className}
     />
