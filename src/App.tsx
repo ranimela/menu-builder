@@ -12,7 +12,9 @@ import {
   RefreshCw,
   Layers,
   Settings,
-  Share2
+  Share2,
+  ChevronUp,
+  ChevronDown
 } from 'lucide-react';
 
 import type { FoodItem, Meal, DayPlan, TargetMacros, TargetRatios } from './types/food';
@@ -147,16 +149,46 @@ const DecimalInput: React.FC<DecimalInputProps> = ({ value, onChange, className 
     }
   };
 
+  const handleIncrement = () => {
+    const newVal = Math.max(0, Math.round((value + 0.1) * 10) / 10);
+    onChange(newVal);
+    setLocalValue(newVal.toFixed(1));
+  };
+
+  const handleDecrement = () => {
+    const newVal = Math.max(0, Math.round((value - 0.1) * 10) / 10);
+    onChange(newVal);
+    setLocalValue(newVal.toFixed(1));
+  };
+
   return (
-    <input
-      type="text"
-      inputMode="decimal"
-      value={localValue}
-      onChange={handleChange}
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-      className={className}
-    />
+    <div className="relative flex items-center w-full">
+      <input
+        type="text"
+        inputMode="decimal"
+        value={localValue}
+        onChange={handleChange}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        className={`${className} pr-8`}
+      />
+      <div className="absolute right-1.5 flex flex-col justify-center h-full">
+        <button
+          type="button"
+          onClick={handleIncrement}
+          className="p-0.5 text-slate-400 hover:text-brand-accent transition cursor-pointer leading-none"
+        >
+          <ChevronUp className="h-3 w-3" />
+        </button>
+        <button
+          type="button"
+          onClick={handleDecrement}
+          className="p-0.5 text-slate-400 hover:text-brand-accent transition cursor-pointer leading-none"
+        >
+          <ChevronDown className="h-3 w-3" />
+        </button>
+      </div>
+    </div>
   );
 };
 
