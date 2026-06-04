@@ -108,6 +108,50 @@ function computeTargetMacros(weight: number, ratios: TargetRatios): TargetMacros
   };
 }
 
+interface DecimalInputProps {
+  value: number;
+  onChange: (val: number) => void;
+  step?: string;
+  className?: string;
+}
+
+const DecimalInput: React.FC<DecimalInputProps> = ({ value, onChange, step = "0.1", className }) => {
+  const [localValue, setLocalValue] = useState(value.toFixed(1));
+
+  useEffect(() => {
+    setLocalValue(value.toFixed(1));
+  }, [value]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const valStr = e.target.value;
+    setLocalValue(valStr);
+    const parsed = parseFloat(valStr);
+    if (!isNaN(parsed)) {
+      onChange(parsed);
+    }
+  };
+
+  const handleBlur = () => {
+    const parsed = parseFloat(localValue);
+    if (isNaN(parsed)) {
+      setLocalValue(value.toFixed(1));
+    } else {
+      setLocalValue(parsed.toFixed(1));
+    }
+  };
+
+  return (
+    <input
+      type="number"
+      step={step}
+      value={localValue}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      className={className}
+    />
+  );
+};
+
 export const App: React.FC = () => {
   // Day selection tab
   const [activeDay, setActiveDay] = useState<'sun_thu' | 'fri' | 'sat'>('sun_thu');
@@ -491,11 +535,9 @@ export const App: React.FC = () => {
                   <Beef className="h-4 w-4 text-brand-secondary" /> Body Weight
                 </div>
                 <div className="flex items-end gap-1">
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={weight.toFixed(1)}
-                    onChange={(e) => setWeight(parseFloat(e.target.value) || 0)}
+                  <DecimalInput
+                    value={weight}
+                    onChange={setWeight}
                     className="w-full bg-brand-card border border-brand-border focus:border-brand-accent focus:ring-1 focus:ring-brand-accent text-lg font-bold px-2 py-1 rounded-lg text-brand-primary outline-none transition"
                   />
                   <span className="text-xs text-slate-500 pb-2">kg</span>
@@ -508,11 +550,9 @@ export const App: React.FC = () => {
                   <Beef className="h-4 w-4" /> Protein Ratio
                 </div>
                 <div className="flex items-end gap-1">
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={currentPlan.ratios.proteinPerKg.toFixed(1)}
-                    onChange={(e) => handleRatioChange('proteinPerKg', parseFloat(e.target.value) || 0)}
+                  <DecimalInput
+                    value={currentPlan.ratios.proteinPerKg}
+                    onChange={(val) => handleRatioChange('proteinPerKg', val)}
                     className="w-full bg-brand-card border border-brand-border focus:border-rose-500 focus:ring-1 focus:ring-rose-500 text-lg font-bold px-2 py-1 rounded-lg text-brand-primary outline-none transition"
                   />
                   <span className="text-xs text-slate-500 pb-2">g/kg</span>
@@ -525,11 +565,9 @@ export const App: React.FC = () => {
                   <Wheat className="h-4 w-4" /> Carbs Ratio
                 </div>
                 <div className="flex items-end gap-1">
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={currentPlan.ratios.carbsPerKg.toFixed(1)}
-                    onChange={(e) => handleRatioChange('carbsPerKg', parseFloat(e.target.value) || 0)}
+                  <DecimalInput
+                    value={currentPlan.ratios.carbsPerKg}
+                    onChange={(val) => handleRatioChange('carbsPerKg', val)}
                     className="w-full bg-brand-card border border-brand-border focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-lg font-bold px-2 py-1 rounded-lg text-brand-primary outline-none transition"
                   />
                   <span className="text-xs text-slate-500 pb-2">g/kg</span>
@@ -542,11 +580,9 @@ export const App: React.FC = () => {
                   <Droplet className="h-4 w-4" /> Fats Ratio
                 </div>
                 <div className="flex items-end gap-1">
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={currentPlan.ratios.fatPerKg.toFixed(1)}
-                    onChange={(e) => handleRatioChange('fatPerKg', parseFloat(e.target.value) || 0)}
+                  <DecimalInput
+                    value={currentPlan.ratios.fatPerKg}
+                    onChange={(val) => handleRatioChange('fatPerKg', val)}
                     className="w-full bg-brand-card border border-brand-border focus:border-sky-500 focus:ring-1 focus:ring-sky-500 text-lg font-bold px-2 py-1 rounded-lg text-brand-primary outline-none transition"
                   />
                   <span className="text-xs text-slate-500 pb-2">g/kg</span>
