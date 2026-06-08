@@ -456,5 +456,23 @@
     "preconditions": [],
     "step": 0.25,
     "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169706/nutrients"
+  },
+  {
+    "id": "raw_oats",
+    "name": "Raw Oats (Rolled)",
+    "calories": 389,
+    "protein": 16.9,
+    "carbs": 66.3,
+    "fat": 6.9,
+    "servingSize": 100,
+    "unit": "g",
+    "defaultQuantity": 50,
+    "minQuantity": 0,
+    "maxQuantity": 200,
+    "isFreeParameter": false,
+    "isMandatory": false,
+    "preconditions": [],
+    "step": 5,
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/173904/nutrients"
   }
 ]
