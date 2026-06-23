@@ -1,4 +1,4 @@
-const CACHE_NAME = 'menu-builder-v3';
+const CACHE_NAME = 'menu-builder-v4';
 const ASSETS = [
   '/menu-builder/',
   '/menu-builder/index.html',
