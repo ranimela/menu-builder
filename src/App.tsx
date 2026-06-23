@@ -267,7 +267,8 @@ export const App: React.FC = () => {
       'sweet_potatoes',
       'potatoes',
       'majadra',
-      'raw_oats'
+      'raw_oats',
+      'cooked_lentils'
     ];
 
     const riceFood = foodMap.get('white_rice');

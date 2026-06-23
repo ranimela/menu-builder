@@ -102,7 +102,8 @@
     "isFreeParameter": true,
     "isMandatory": false,
     "preconditions": [],
-    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/168483/nutrients"
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/168483/nutrients",
+    "step": 10
   },
   {
     "id": "majadra",
@@ -119,7 +120,8 @@
     "isFreeParameter": false,
     "isMandatory": false,
     "preconditions": [],
-    "source": "https://nutriscan.app/calories-nutrition/mujaddara"
+    "source": "https://nutriscan.app/calories-nutrition/mujaddara",
+    "step": 10
   },
   {
     "id": "rice_noodles",
@@ -136,7 +138,8 @@
     "isFreeParameter": false,
     "isMandatory": false,
     "preconditions": [],
-    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/168914/nutrients"
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/168914/nutrients",
+    "step": 10
   },
   {
     "id": "quinoa",
@@ -153,7 +156,8 @@
     "isFreeParameter": false,
     "isMandatory": false,
     "preconditions": [],
-    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/168917/nutrients"
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/168917/nutrients",
+    "step": 10
   },
   {
     "id": "tortilla_wrap",
@@ -258,7 +262,8 @@
     "isFreeParameter": false,
     "isMandatory": false,
     "preconditions": [],
-    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170093/nutrients"
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170093/nutrients",
+    "step": 10
   },
   {
     "id": "beef",
@@ -365,7 +370,7 @@
     "isFreeParameter": false,
     "isMandatory": false,
     "preconditions": [],
-    "step": 50,
+    "step": 10,
     "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169737/nutrients"
   },
   {
@@ -472,7 +477,25 @@
     "isFreeParameter": false,
     "isMandatory": false,
     "preconditions": [],
-    "step": 5,
+    "step": 10,
     "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/173904/nutrients"
+  },
+  {
+    "id": "cooked_lentils",
+    "name": "Cooked Lentils",
+    "calories": 116,
+    "protein": 9.0,
+    "carbs": 20.1,
+    "fat": 0.38,
+    "servingSize": 100,
+    "unit": "g",
+    "defaultQuantity": 100,
+    "minQuantity": 0,
+    "maxQuantity": 500,
+    "isFreeParameter": false,
+    "isMandatory": false,
+    "preconditions": [],
+    "step": 10,
+    "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/172421/nutrients"
   }
 ]
