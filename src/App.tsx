@@ -229,15 +229,68 @@ export const App: React.FC = () => {
   // Auto-solve toggle state
   const [autoSolve, setAutoSolve] = useState(true);
 
+  // Selected swaps state (mealId -> alternative foodId)
+  const [selectedSwaps, setSelectedSwaps] = useState<Record<string, string>>({});
+
+  // Reset selected swaps when activeDay changes
+  useEffect(() => {
+    setSelectedSwaps({});
+  }, [activeDay]);
+
   const currentPlan = dayPlans[activeDay];
 
   // Map to speed up database lookups
   const foodMap = useMemo(() => new Map(FOOD_DATABASE.map(f => [f.id, f])), []);
 
-  // Compute actual daily nutrition totals from selected meals
+  // Compute actual daily nutrition totals from selected meals (including selected carb swaps)
   const actualTotals = useMemo(() => {
-    return calculateTotals(currentPlan.meals, FOOD_DATABASE);
-  }, [currentPlan.meals]);
+    const totals = calculateTotals(currentPlan.meals, FOOD_DATABASE);
+    
+    // Add the deltas from selected carb swaps in each meal
+    for (const meal of currentPlan.meals) {
+      const swapFoodId = selectedSwaps[meal.id];
+      if (swapFoodId) {
+        const altFood = foodMap.get(swapFoodId);
+        const riceFood = foodMap.get('white_rice');
+        const riceInMeal = meal.foods.find(f => f.foodId === 'white_rice');
+
+        if (altFood && riceFood && riceInMeal && riceInMeal.quantity > 0) {
+          const riceQty = riceInMeal.quantity;
+          const riceCarbs = riceQty * (riceFood.carbs / riceFood.servingSize);
+          const altCarbDensity = altFood.carbs / altFood.servingSize;
+          const equivQty = altCarbDensity > 0 ? riceCarbs / altCarbDensity : 0;
+          
+          // Rounded to nearest 10g step size
+          const step = 10;
+          const roundedQty = Math.round(equivQty / step) * step;
+
+          const riceRatio = riceQty / riceFood.servingSize;
+          const altRatio = roundedQty / altFood.servingSize;
+
+          const riceNut = {
+            calories: riceFood.calories * riceRatio,
+            protein: riceFood.protein * riceRatio,
+            carbs: riceFood.carbs * riceRatio,
+            fat: riceFood.fat * riceRatio
+          };
+
+          const altNut = {
+            calories: altFood.calories * altRatio,
+            protein: altFood.protein * altRatio,
+            carbs: altFood.carbs * altRatio,
+            fat: altFood.fat * altRatio
+          };
+
+          totals.calories += (altNut.calories - riceNut.calories);
+          totals.protein += (altNut.protein - riceNut.protein);
+          totals.carbs += (altNut.carbs - riceNut.carbs);
+          totals.fat += (altNut.fat - riceNut.fat);
+        }
+      }
+    }
+
+    return totals;
+  }, [currentPlan.meals, selectedSwaps, foodMap]);
 
   // Compute target macros from weight and current plan's ratios
   const currentPlanTargets = useMemo(() => {
@@ -1007,30 +1060,174 @@ export const App: React.FC = () => {
                             );
                           })
                         )}
+
+                        {/* Carb Swap Row */}
+                        {(() => {
+                          const swapFoodId = selectedSwaps[meal.id];
+                          if (!swapFoodId) return null;
+
+                          const altFood = foodMap.get(swapFoodId);
+                          const riceFood = foodMap.get('white_rice');
+                          const riceInMeal = meal.foods.find(f => f.foodId === 'white_rice');
+
+                          if (!altFood || !riceFood || !riceInMeal || riceInMeal.quantity <= 0) return null;
+
+                          const riceQty = riceInMeal.quantity;
+                          const riceCarbs = riceQty * (riceFood.carbs / riceFood.servingSize);
+                          const altCarbDensity = altFood.carbs / altFood.servingSize;
+                          const equivQty = altCarbDensity > 0 ? riceCarbs / altCarbDensity : 0;
+                          
+                          // Rounded to nearest 10g step size
+                          const step = 10;
+                          const roundedQty = Math.round(equivQty / step) * step;
+
+                          // Compute nutrient differences (Alternative - White Rice)
+                          const riceRatio = riceQty / riceFood.servingSize;
+                          const altRatio = roundedQty / altFood.servingSize;
+
+                          const riceNut = {
+                            calories: riceFood.calories * riceRatio,
+                            protein: riceFood.protein * riceRatio,
+                            carbs: riceFood.carbs * riceRatio,
+                            fat: riceFood.fat * riceRatio
+                          };
+
+                          const altNut = {
+                            calories: altFood.calories * altRatio,
+                            protein: altFood.protein * altRatio,
+                            carbs: altFood.carbs * altRatio,
+                            fat: altFood.fat * altRatio
+                          };
+
+                          const diff = {
+                            calories: Math.round(altNut.calories - riceNut.calories),
+                            protein: Math.round((altNut.protein - riceNut.protein) * 10) / 10,
+                            carbs: Math.round((altNut.carbs - riceNut.carbs) * 10) / 10,
+                            fat: Math.round((altNut.fat - riceNut.fat) * 10) / 10
+                          };
+
+                          const formatDiff = (val: number) => {
+                            if (val > 0) return `+${val.toFixed(1)}`;
+                            if (val < 0) return `${val.toFixed(1)}`;
+                            return `0.0`;
+                          };
+
+                          return (
+                            <tr className="bg-brand-secondary/5 font-semibold text-brand-primary border-t border-brand-border">
+                              <td className="py-3 px-6 text-amber-600 font-bold">
+                                Swap: {altFood.name}
+                              </td>
+                              <td className="py-3 px-6 text-center text-xs text-slate-500">
+                                Equivalent Portion
+                              </td>
+                              <td className="py-3 px-6">
+                                <div className="text-sm font-bold text-brand-primary">
+                                  {roundedQty} {altFood.unit}
+                                </div>
+                              </td>
+                              <td className="py-3 px-6 text-center">
+                                {/* Spacer for Lock column */}
+                              </td>
+                              <td className="py-3 px-6 text-orange-500 font-bold text-sm">
+                                {diff.calories > 0 ? `+${diff.calories}` : diff.calories} kcal
+                              </td>
+                              <td className="py-3 px-6 text-xs font-bold space-x-1.5">
+                                <span className={diff.protein >= 0 ? "text-rose-500" : "text-rose-700"}>
+                                  {formatDiff(diff.protein)}g P
+                                </span>
+                                <span className="text-slate-400">/</span>
+                                <span className={diff.carbs >= 0 ? "text-amber-500" : "text-amber-700"}>
+                                  {formatDiff(diff.carbs)}g C
+                                </span>
+                                <span className="text-slate-400">/</span>
+                                <span className={diff.fat >= 0 ? "text-sky-500" : "text-sky-700"}>
+                                  {formatDiff(diff.fat)}g F
+                                </span>
+                              </td>
+                              <td className="py-3 px-6 text-right">
+                                <button
+                                  onClick={() => {
+                                    setSelectedSwaps(prev => {
+                                      const copy = { ...prev };
+                                      delete copy[meal.id];
+                                      return copy;
+                                    });
+                                  }}
+                                  className="p-1 px-2.5 rounded-lg border border-brand-border hover:border-brand-accent text-xs font-bold text-slate-500 hover:text-brand-accent hover:bg-brand-accent/5 transition cursor-pointer"
+                                >
+                                  Clear Swap
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })()}
                       </tbody>
                     </table>
                   </div>
 
                   {/* Add food to meal controls */}
-                  <div className="bg-brand-bg p-4 border-t border-brand-border flex flex-col sm:flex-row items-center gap-3">
-                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Add food item:</span>
-                    <select
-                      onChange={(e) => {
-                        if (e.target.value) {
-                          handleAddFoodToMeal(meal.id, e.target.value);
-                          e.target.value = '';
-                        }
-                      }}
-                      className="bg-brand-card border border-brand-border text-sm font-semibold rounded-lg px-3 py-1.5 outline-none focus:border-brand-accent text-brand-primary w-full sm:w-64"
-                      defaultValue=""
-                    >
-                      <option value="" disabled>Select food item...</option>
-                      {FOOD_DATABASE.filter(f => isFoodAllowed(f.id, activeDay, meal.id) && !meal.foods.some(mf => mf.foodId === f.id)).map(food => (
-                        <option key={food.id} value={food.id}>
-                          {food.name}
-                        </option>
-                      ))}
-                    </select>
+                  <div className="bg-brand-bg p-4 border-t border-brand-border flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                      <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Add food item:</span>
+                      <select
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            handleAddFoodToMeal(meal.id, e.target.value);
+                            e.target.value = '';
+                          }
+                        }}
+                        className="bg-brand-card border border-brand-border text-sm font-semibold rounded-lg px-3 py-1.5 outline-none focus:border-brand-accent text-brand-primary w-full sm:w-64"
+                        defaultValue=""
+                      >
+                        <option value="" disabled>Select food item...</option>
+                        {FOOD_DATABASE.filter(f => isFoodAllowed(f.id, activeDay, meal.id) && !meal.foods.some(mf => mf.foodId === f.id)).map(food => (
+                          <option key={food.id} value={food.id}>
+                            {food.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                      <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Carb Swap:</span>
+                      {(() => {
+                        const hasRice = meal.foods.some(f => f.foodId === 'white_rice' && f.quantity > 0);
+                        const swapOptions = [
+                          { id: 'quinoa', name: 'Quinoa' },
+                          { id: 'pasta', name: 'Pasta' },
+                          { id: 'rice_noodles', name: 'Rice Noodles' },
+                          { id: 'sweet_potatoes', name: 'Sweet Potatoes' },
+                          { id: 'potatoes', name: 'Potatoes' },
+                          { id: 'majadra', name: 'Majadra' },
+                          { id: 'raw_oats', name: 'Raw Oats' },
+                          { id: 'cooked_lentils', name: 'Cooked Lentils' }
+                        ];
+
+                        return (
+                          <select
+                            disabled={!hasRice}
+                            value={selectedSwaps[meal.id] || ""}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setSelectedSwaps(prev => ({
+                                ...prev,
+                                [meal.id]: val
+                              }));
+                            }}
+                            className="bg-brand-card border border-brand-border text-sm font-semibold rounded-lg px-3 py-1.5 outline-none focus:border-brand-accent text-brand-primary disabled:opacity-50 w-full sm:w-56"
+                          >
+                            <option value="">
+                              {hasRice ? "Select swap alternative..." : "Add White Rice to enable swaps"}
+                            </option>
+                            {swapOptions.map(opt => (
+                              <option key={opt.id} value={opt.id}>
+                                {opt.name}
+                              </option>
+                            ))}
+                          </select>
+                        );
+                      })()}
+                    </div>
                   </div>
 
                 </div>
