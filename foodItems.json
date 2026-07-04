@@ -497,5 +497,41 @@
     "preconditions": [],
     "step": 10,
     "source": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/172421/nutrients"
+  },
+  {
+    "id": "rice_cake",
+    "name": "Rice Cake",
+    "calories": 112,
+    "protein": 2.55,
+    "carbs": 23.7,
+    "fat": 0.84,
+    "servingSize": 30,
+    "unit": "pcs",
+    "defaultQuantity": 1,
+    "minQuantity": 0,
+    "maxQuantity": 10,
+    "isFreeParameter": false,
+    "isMandatory": false,
+    "preconditions": [],
+    "step": 1,
+    "source": "User customization"
+  },
+  {
+    "id": "jam",
+    "name": "Jam",
+    "calories": 246,
+    "protein": 0.6,
+    "carbs": 61.0,
+    "fat": 0.0,
+    "servingSize": 100,
+    "unit": "g",
+    "defaultQuantity": 20,
+    "minQuantity": 0,
+    "maxQuantity": 150,
+    "isFreeParameter": false,
+    "isMandatory": false,
+    "preconditions": [],
+    "step": 5,
+    "source": "User customization"
   }
 ]
