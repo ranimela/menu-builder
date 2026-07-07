@@ -180,6 +180,8 @@ export const MealSection: React.FC<MealSectionProps> = ({
               const riceInMeal = meal.foods.find(f => f.foodId === 'white_rice');
 
               if (!altFood || !riceFood || !riceInMeal || riceInMeal.quantity <= 0) return null;
+              if (!riceFood.servingSize || riceFood.servingSize <= 0) return null;
+              if (!altFood.servingSize || altFood.servingSize <= 0) return null;
 
               const riceQty = riceInMeal.quantity;
               const riceCarbs = riceQty * (riceFood.carbs / riceFood.servingSize);

@@ -3,6 +3,9 @@ import { SYSTEM_CONSTRAINTS } from './constraints';
 
 // Helper to compute nutrition for a given quantity of a food item
 export function getNutrition(food: FoodItem, quantity: number) {
+  if (!food.servingSize || food.servingSize <= 0) {
+    return { calories: 0, protein: 0, carbs: 0, fat: 0 };
+  }
   const ratio = quantity / food.servingSize;
   return {
     calories: food.calories * ratio,
@@ -116,13 +119,14 @@ export function solveDayMenu(
   // Loss function: measures how far we are from targets
   const getLoss = (currentMeals: Meal[]) => {
     const totals = calculateTotals(currentMeals, foodDb);
-    const dCal = totals.calories - targets.calories;
+    // Normalize calorie delta (converting calories to macro gram equivalents by dividing by 4)
+    const dCalNormalized = (totals.calories - targets.calories) / 4;
     const dPro = totals.protein - targets.protein;
     const dCarb = totals.carbs - targets.carbs;
     const dFat = totals.fat - targets.fat;
 
     return (
-      W_CAL * dCal * dCal +
+      W_CAL * dCalNormalized * dCalNormalized +
       W_PRO * dPro * dPro +
       W_CARB * dCarb * dCarb +
       W_FAT * dFat * dFat

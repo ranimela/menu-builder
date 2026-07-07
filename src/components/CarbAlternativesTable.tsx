@@ -25,13 +25,13 @@ export const CarbAlternativesTable: React.FC<CarbAlternativesTableProps> = ({
     ];
 
     const riceFood = foodMap.get('white_rice');
-    if (!riceFood) return [];
+    if (!riceFood || !riceFood.servingSize || riceFood.servingSize <= 0) return [];
 
     const totalRiceCarbs = totalRiceQuantity * (riceFood.carbs / riceFood.servingSize);
 
     return alternativeIds.map(id => {
       const food = foodMap.get(id);
-      if (!food) return null;
+      if (!food || !food.servingSize || food.servingSize <= 0) return null;
 
       const carbDensity = food.carbs / food.servingSize;
       const equivQty = carbDensity > 0 ? totalRiceCarbs / carbDensity : 0;
