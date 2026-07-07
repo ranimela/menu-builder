@@ -85,38 +85,138 @@ function computeTargetMacros(weight: number, ratios: TargetRatios): TargetMacros
   };
 }
 
-export function useMealPlanner() {
-  const [activeDay, setActiveDay] = useState<'sun_thu' | 'fri' | 'sat'>('sun_thu');
-  const [weight, setWeight] = useState<number>(71);
-  const [autoSolve, setAutoSolve] = useState(true);
-  const [selectedSwaps, setSelectedSwaps] = useState<Record<string, string>>({});
+const STORAGE_KEYS = {
+  WEIGHT: 'meal_planner_weight',
+  ACTIVE_DAY: 'meal_planner_active_day',
+  AUTO_SOLVE: 'meal_planner_auto_solve',
+  DAY_PLANS: 'meal_planner_day_plans',
+  SELECTED_SWAPS: 'meal_planner_selected_swaps'
+};
 
-  const [dayPlans, setDayPlans] = useState<Record<'sun_thu' | 'fri' | 'sat', DayPlan>>(() => ({
-    sun_thu: {
-      dayId: 'sun_thu',
-      name: 'Sunday - Thursday',
-      regime: 'OMAD',
-      ratios: INITIAL_RATIOS.sun_thu,
-      meals: createDefaultMeals('sun_thu'),
-    },
-    fri: {
-      dayId: 'fri',
-      name: 'Friday',
-      regime: 'OMAD',
-      ratios: INITIAL_RATIOS.fri,
-      meals: createDefaultMeals('fri'),
-    },
-    sat: {
-      dayId: 'sat',
-      name: 'Saturday',
-      regime: 'Lunch_Dinner',
-      ratios: INITIAL_RATIOS.sat,
-      meals: createDefaultMeals('sat'),
+const DEFAULT_DAY_PLANS = {
+  sun_thu: {
+    dayId: 'sun_thu' as const,
+    name: 'Sunday - Thursday',
+    regime: 'OMAD' as const,
+    ratios: INITIAL_RATIOS.sun_thu,
+    meals: createDefaultMeals('sun_thu'),
+  },
+  fri: {
+    dayId: 'fri' as const,
+    name: 'Friday',
+    regime: 'OMAD' as const,
+    ratios: INITIAL_RATIOS.fri,
+    meals: createDefaultMeals('fri'),
+  },
+  sat: {
+    dayId: 'sat' as const,
+    name: 'Saturday',
+    regime: 'Lunch_Dinner' as const,
+    ratios: INITIAL_RATIOS.sat,
+    meals: createDefaultMeals('sat'),
+  }
+};
+
+export function useMealPlanner() {
+  const [activeDay, setActiveDay] = useState<'sun_thu' | 'fri' | 'sat'>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.ACTIVE_DAY);
+      return (saved as 'sun_thu' | 'fri' | 'sat') || 'sun_thu';
+    } catch {
+      return 'sun_thu';
     }
-  }));
+  });
+
+  const [weight, setWeight] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.WEIGHT);
+      return saved ? Number(saved) : 71;
+    } catch {
+      return 71;
+    }
+  });
+
+  const [autoSolve, setAutoSolve] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.AUTO_SOLVE);
+      return saved !== null ? saved === 'true' : true;
+    } catch {
+      return true;
+    }
+  });
+
+  const [selectedSwaps, setSelectedSwaps] = useState<Record<string, string>>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.SELECTED_SWAPS);
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  const [dayPlans, setDayPlans] = useState<Record<'sun_thu' | 'fri' | 'sat', DayPlan>>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.DAY_PLANS);
+      return saved ? JSON.parse(saved) : DEFAULT_DAY_PLANS;
+    } catch {
+      return DEFAULT_DAY_PLANS;
+    }
+  });
+
+  // Sync to local storage
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.ACTIVE_DAY, activeDay);
+    } catch (e) {
+      console.warn('LocalStorage save error:', e);
+    }
+  }, [activeDay]);
 
   useEffect(() => {
-    setSelectedSwaps({});
+    try {
+      localStorage.setItem(STORAGE_KEYS.WEIGHT, String(weight));
+    } catch (e) {
+      console.warn('LocalStorage save error:', e);
+    }
+  }, [weight]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.AUTO_SOLVE, String(autoSolve));
+    } catch (e) {
+      console.warn('LocalStorage save error:', e);
+    }
+  }, [autoSolve]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.SELECTED_SWAPS, JSON.stringify(selectedSwaps));
+    } catch (e) {
+      console.warn('LocalStorage save error:', e);
+    }
+  }, [selectedSwaps]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.DAY_PLANS, JSON.stringify(dayPlans));
+    } catch (e) {
+      console.warn('LocalStorage save error:', e);
+    }
+  }, [dayPlans]);
+
+  useEffect(() => {
+    // Keep active swaps safe
+    setSelectedSwaps(prev => {
+      const activeSwaps = { ...prev };
+      let changed = false;
+      for (const key of Object.keys(activeSwaps)) {
+        if (!currentPlan.meals.some(m => m.id === key)) {
+          delete activeSwaps[key];
+          changed = true;
+        }
+      }
+      return changed ? activeSwaps : prev;
+    });
   }, [activeDay]);
 
   const currentPlan = dayPlans[activeDay];
