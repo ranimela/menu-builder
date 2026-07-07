@@ -48,3 +48,25 @@ export interface TargetMacros {
   carbs: number;
   fat: number;
 }
+
+export interface FoodConstraint {
+  foodId: string;
+  dayId?: 'sun_thu' | 'fri' | 'sat';
+  mealId?: string;
+  min?: number;
+  max?: number;
+  description: string;
+}
+
+export interface SolverResult {
+  optimizedMeals: Meal[];
+  status: 'optimal' | 'unreachable';
+  deltas: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  };
+  loss: number;
+}
+
