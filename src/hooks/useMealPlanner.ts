@@ -204,6 +204,27 @@ export function useMealPlanner() {
     }
   }, [dayPlans]);
 
+  const [customFoods, setCustomFoods] = useState<FoodItem[]>(() => {
+    try {
+      const saved = localStorage.getItem('meal_planner_custom_foods');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('meal_planner_custom_foods', JSON.stringify(customFoods));
+    } catch (e) {
+      console.warn('LocalStorage save error:', e);
+    }
+  }, [customFoods]);
+
+  const mergedFoodDatabase = useMemo(() => {
+    return [...FOOD_DATABASE, ...customFoods];
+  }, [customFoods]);
+
   useEffect(() => {
     // Keep active swaps safe
     setSelectedSwaps(prev => {
@@ -220,7 +241,7 @@ export function useMealPlanner() {
   }, [activeDay]);
 
   const currentPlan = dayPlans[activeDay];
-  const foodMap = useMemo(() => new Map(FOOD_DATABASE.map(f => [f.id, f])), []);
+  const foodMap = useMemo(() => new Map(mergedFoodDatabase.map(f => [f.id, f])), [mergedFoodDatabase]);
 
   // Compute targets
   const currentPlanTargets = useMemo(() => {
@@ -229,15 +250,15 @@ export function useMealPlanner() {
 
   // Solver running & state evaluation
   const solverResult = useMemo<SolverResult>(() => {
-    return solveDayMenu(currentPlan.meals, FOOD_DATABASE, currentPlanTargets, activeDay);
-  }, [currentPlan.meals, currentPlanTargets, activeDay]);
+    return solveDayMenu(currentPlan.meals, mergedFoodDatabase, currentPlanTargets, activeDay);
+  }, [currentPlan.meals, currentPlanTargets, activeDay, mergedFoodDatabase]);
 
   // If autoSolve is enabled, use optimized meals, else use raw plan meals
   const activeMeals = autoSolve ? solverResult.optimizedMeals : currentPlan.meals;
 
   // Compute actual daily nutrition totals from selected meals (including selected carb swaps)
   const actualTotals = useMemo(() => {
-    const totals = calculateTotals(activeMeals, FOOD_DATABASE);
+    const totals = calculateTotals(activeMeals, mergedFoodDatabase);
     
     // Add the deltas from selected carb swaps in each meal
     for (const meal of activeMeals) {
@@ -248,6 +269,9 @@ export function useMealPlanner() {
         const riceInMeal = meal.foods.find(f => f.foodId === 'white_rice');
 
         if (altFood && riceFood && riceInMeal && riceInMeal.quantity > 0) {
+          if (!riceFood.servingSize || riceFood.servingSize <= 0) continue;
+          if (!altFood.servingSize || altFood.servingSize <= 0) continue;
+
           const riceQty = riceInMeal.quantity;
           const riceCarbs = riceQty * (riceFood.carbs / riceFood.servingSize);
           const altCarbDensity = altFood.carbs / altFood.servingSize;
@@ -388,8 +412,12 @@ export function useMealPlanner() {
     }
   };
 
+  const handleAddCustomFood = (food: FoodItem) => {
+    setCustomFoods(prev => [...prev, food]);
+  };
+
   return {
-    FOOD_DATABASE,
+    FOOD_DATABASE: mergedFoodDatabase,
     activeDay,
     setActiveDay,
     weight,
@@ -412,6 +440,7 @@ export function useMealPlanner() {
     handleQuantityChange,
     handleToggleLock,
     handleResetDay,
-    runSolverTrigger
+    runSolverTrigger,
+    handleAddCustomFood
   };
 }

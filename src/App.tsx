@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMealPlanner } from './hooks/useMealPlanner';
 import { TargetConfigPanel } from './components/TargetConfigPanel';
 import { NutritionalDashboard } from './components/NutritionalDashboard';
 import { MealSection } from './components/MealSection';
 import { CarbAlternativesTable } from './components/CarbAlternativesTable';
-import { Sparkles, Calendar, Share2, RefreshCw, AlertTriangle, CheckCircle } from 'lucide-react';
+import { CustomFoodModal } from './components/CustomFoodModal';
+import { Sparkles, Calendar, Share2, RefreshCw, AlertTriangle, CheckCircle, PlusCircle, ArrowUpCircle } from 'lucide-react';
 import { calculateTotals, getNutrition } from './utils/solver';
 
 export const App: React.FC = () => {
@@ -30,8 +31,36 @@ export const App: React.FC = () => {
     handleQuantityChange,
     handleToggleLock,
     handleResetDay,
-    runSolverTrigger
+    runSolverTrigger,
+    handleAddCustomFood
   } = useMealPlanner();
+
+  const [isCustomFoodOpen, setIsCustomFoodOpen] = useState(false);
+  const [showUpdateBanner, setShowUpdateBanner] = useState(false);
+
+  // Check for service worker updates
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistration().then(reg => {
+        if (reg) {
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            if (newWorker) {
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  setShowUpdateBanner(true);
+                }
+              });
+            }
+          });
+        }
+      });
+    }
+  }, []);
+
+  const handleReloadApp = () => {
+    window.location.reload();
+  };
 
   // Compute total white rice quantity in current plan
   const totalRiceQuantity = React.useMemo(() => {
@@ -90,7 +119,18 @@ export const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-brand-bg text-brand-primary font-sans pb-16">
-      <header className="border-b border-brand-border bg-brand-card/90 backdrop-blur-md sticky top-0 z-40 shadow-sm">
+      {/* SW Update Notification Banner */}
+      {showUpdateBanner && (
+        <div className="bg-brand-accent text-white px-4 py-2 text-center text-xs font-bold flex items-center justify-center gap-2 sticky top-0 z-50">
+          <ArrowUpCircle className="h-4 w-4 animate-bounce" />
+          A new version of the app is available.
+          <button onClick={handleReloadApp} className="underline cursor-pointer ml-1 hover:text-brand-highlight">
+            Click here to refresh and update
+          </button>
+        </div>
+      )}
+
+      <header className="border-b border-brand-border bg-brand-card/90 backdrop-blur-md sticky top-[inherit] z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="bg-gradient-to-tr from-brand-accent to-brand-secondary p-2.5 rounded-xl shadow-lg">
@@ -182,6 +222,12 @@ export const App: React.FC = () => {
 
           <div className="flex gap-2">
             <button
+              onClick={() => setIsCustomFoodOpen(true)}
+              className="flex items-center gap-1 bg-brand-bg hover:bg-slate-200 border border-brand-border text-xs font-bold px-3 py-1.5 rounded-lg transition"
+            >
+              <PlusCircle className="h-3.5 w-3.5 text-brand-accent" /> Custom Food
+            </button>
+            <button
               onClick={handleResetDay}
               className="flex items-center gap-1 bg-brand-bg hover:bg-slate-200 border border-brand-border text-xs font-bold px-3 py-1.5 rounded-lg transition"
             >
@@ -232,6 +278,14 @@ export const App: React.FC = () => {
           foodMap={foodMap}
         />
       </main>
+
+      {/* Custom Food Adder Modal */}
+      {isCustomFoodOpen && (
+        <CustomFoodModal
+          onClose={() => setIsCustomFoodOpen(false)}
+          onSave={handleAddCustomFood}
+        />
+      )}
     </div>
   );
 };
