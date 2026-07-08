@@ -1,5 +1,5 @@
 import React from 'react';
-import type { TargetMacros, TargetRatios, SolverResult } from '../types/food';
+import type { TargetMacros, TargetRatios, SolverResult, Meal, FoodItem } from '../types/food';
 import { Flame, AlertTriangle } from 'lucide-react';
 
 interface NutritionalDashboardProps {
@@ -8,6 +8,8 @@ interface NutritionalDashboardProps {
   weight: number;
   ratios: TargetRatios;
   solverResult: SolverResult;
+  activeMeals: Meal[];
+  foodDatabase: FoodItem[];
 }
 
 export const NutritionalDashboard: React.FC<NutritionalDashboardProps> = ({
@@ -15,7 +17,9 @@ export const NutritionalDashboard: React.FC<NutritionalDashboardProps> = ({
   targets,
   weight,
   ratios,
-  solverResult
+  solverResult,
+  activeMeals,
+  foodDatabase
 }) => {
   const caloriesPct = Math.min(100, (actualTotals.calories / targets.calories) * 100);
   const proteinPct = Math.min(100, (actualTotals.protein / targets.protein) * 100);
@@ -34,6 +38,33 @@ export const NutritionalDashboard: React.FC<NutritionalDashboardProps> = ({
 
   const isUnreachable = solverResult.status === 'unreachable';
 
+  // Calculate locked foods macro contributions
+  const lockedTotals = React.useMemo(() => {
+    let cal = 0, pro = 0, carb = 0, fat = 0;
+    const foodMap = new Map(foodDatabase.map(f => [f.id, f]));
+    for (const meal of activeMeals) {
+      for (const item of meal.foods) {
+        if (item.locked) {
+          const food = foodMap.get(item.foodId);
+          if (food && food.servingSize > 0) {
+            const ratio = item.quantity / food.servingSize;
+            cal += food.calories * ratio;
+            pro += food.protein * ratio;
+            carb += food.carbs * ratio;
+            fat += food.fat * ratio;
+          }
+        }
+      }
+    }
+    return { calories: cal, protein: pro, carbs: carb, fat: fat };
+  }, [activeMeals, foodDatabase]);
+
+  const exceedsCal = lockedTotals.calories > targets.calories;
+  const exceedsPro = lockedTotals.protein > targets.protein;
+  const exceedsCarb = lockedTotals.carbs > targets.carbs;
+  const exceedsFat = lockedTotals.fat > targets.fat;
+  const hasExceededLocked = exceedsCal || exceedsPro || exceedsCarb || exceedsFat;
+
   return (
     <div className="space-y-6">
       {/* Target Progress Section */}
@@ -47,8 +78,26 @@ export const NutritionalDashboard: React.FC<NutritionalDashboardProps> = ({
           </div>
         </div>
 
+        {/* Locked values exceeding targets diagnostics check */}
+        {hasExceededLocked && (
+          <div className="bg-rose-50 border border-rose-200 rounded-xl p-4 flex gap-3 text-rose-800 text-sm">
+            <AlertTriangle className="h-5 w-5 text-rose-500 shrink-0 mt-0.5" />
+            <div>
+              <h4 className="font-bold">Locked Items Exceed Targets</h4>
+              <p className="text-xs text-rose-700 mt-1">
+                Your locked meal quantities are already greater than your daily targets:
+                {exceedsCal && ` Calories (Locked: ${Math.round(lockedTotals.calories)} kcal / Target: ${Math.round(targets.calories)} kcal)`}
+                {exceedsPro && ` Protein (Locked: ${Math.round(lockedTotals.protein)}g / Target: ${Math.round(targets.protein)}g)`}
+                {exceedsCarb && ` Carbs (Locked: ${Math.round(lockedTotals.carbs)}g / Target: ${Math.round(targets.carbs)}g)`}
+                {exceedsFat && ` Fat (Locked: ${Math.round(lockedTotals.fat)}g / Target: ${Math.round(targets.fat)}g)`}.
+                Unlock some items or reduce locked portions to allow optimization.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Diagnostic Warning Card if Unreachable */}
-        {isUnreachable && (
+        {isUnreachable && !hasExceededLocked && (
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3 text-amber-800 text-sm">
             <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
             <div>

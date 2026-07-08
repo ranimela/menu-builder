@@ -5,7 +5,8 @@ import { NutritionalDashboard } from './components/NutritionalDashboard';
 import { MealSection } from './components/MealSection';
 import { CarbAlternativesTable } from './components/CarbAlternativesTable';
 import { CustomFoodModal } from './components/CustomFoodModal';
-import { Sparkles, Calendar, Share2, RefreshCw, AlertTriangle, CheckCircle, PlusCircle, ArrowUpCircle } from 'lucide-react';
+import { ManageCustomFoodsModal } from './components/ManageCustomFoodsModal';
+import { Sparkles, Calendar, Share2, RefreshCw, AlertTriangle, CheckCircle, PlusCircle, ArrowUpCircle, Settings } from 'lucide-react';
 import { calculateTotals, getNutrition } from './utils/solver';
 
 export const App: React.FC = () => {
@@ -32,10 +33,15 @@ export const App: React.FC = () => {
     handleToggleLock,
     handleResetDay,
     runSolverTrigger,
-    handleAddCustomFood
+    handleAddCustomFood,
+    handleRemoveCustomFood,
+    customFoods,
+    solverFocus,
+    setSolverFocus
   } = useMealPlanner();
 
   const [isCustomFoodOpen, setIsCustomFoodOpen] = useState(false);
+  const [isManageFoodsOpen, setIsManageFoodsOpen] = useState(false);
   const [showUpdateBanner, setShowUpdateBanner] = useState(false);
 
   // Check for service worker updates
@@ -182,11 +188,13 @@ export const App: React.FC = () => {
           weight={weight}
           ratios={currentPlan.ratios}
           solverResult={solverResult}
+          activeMeals={activeMeals}
+          foodDatabase={FOOD_DATABASE}
         />
 
         {/* Solver Control Toolbar */}
         <section className="bg-brand-card border border-brand-border p-4 rounded-xl flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap">
             <label className="flex items-center gap-2 text-sm font-semibold text-brand-primary">
               <input
                 type="checkbox"
@@ -204,8 +212,23 @@ export const App: React.FC = () => {
                 Solve Menu Now
               </button>
             )}
+            
+            {/* Focus Options Selector */}
+            <div className="flex items-center gap-2 border-l border-brand-border pl-4">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Focus:</span>
+              <select
+                value={solverFocus}
+                onChange={(e) => setSolverFocus(e.target.value as any)}
+                className="bg-brand-bg border border-brand-border text-xs font-bold rounded-lg px-2 py-1 outline-none text-brand-primary cursor-pointer"
+              >
+                <option value="balanced">⚖️ Balanced</option>
+                <option value="protein">🥩 Protein Priority</option>
+                <option value="calories">🔥 Calorie Priority</option>
+              </select>
+            </div>
+
             {/* Solver status pill */}
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 border-l border-brand-border pl-4">
               {isOptimal ? (
                 <span className="bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-xs px-2.5 py-1 rounded-full font-bold flex items-center gap-1">
                   <CheckCircle className="h-3.5 h-3.5 text-emerald-500" />
@@ -221,12 +244,21 @@ export const App: React.FC = () => {
           </div>
 
           <div className="flex gap-2">
-            <button
-              onClick={() => setIsCustomFoodOpen(true)}
-              className="flex items-center gap-1 bg-brand-bg hover:bg-slate-200 border border-brand-border text-xs font-bold px-3 py-1.5 rounded-lg transition"
-            >
-              <PlusCircle className="h-3.5 w-3.5 text-brand-accent" /> Custom Food
-            </button>
+            <div className="flex items-center border border-brand-border rounded-lg bg-brand-bg overflow-hidden">
+              <button
+                onClick={() => setIsCustomFoodOpen(true)}
+                className="flex items-center gap-1 hover:bg-slate-200 text-xs font-bold px-3 py-1.5 transition border-r border-brand-border text-brand-accent"
+              >
+                <PlusCircle className="h-3.5 w-3.5" /> Add Food
+              </button>
+              <button
+                onClick={() => setIsManageFoodsOpen(true)}
+                className="flex items-center gap-1 hover:bg-slate-200 text-xs font-bold px-3 py-1.5 transition text-slate-600"
+                title="Manage foods list"
+              >
+                <Settings className="h-3.5 w-3.5" /> Manage
+              </button>
+            </div>
             <button
               onClick={handleResetDay}
               className="flex items-center gap-1 bg-brand-bg hover:bg-slate-200 border border-brand-border text-xs font-bold px-3 py-1.5 rounded-lg transition"
@@ -284,6 +316,15 @@ export const App: React.FC = () => {
         <CustomFoodModal
           onClose={() => setIsCustomFoodOpen(false)}
           onSave={handleAddCustomFood}
+        />
+      )}
+
+      {/* Custom Food Manager CRUD Modal */}
+      {isManageFoodsOpen && (
+        <ManageCustomFoodsModal
+          onClose={() => setIsManageFoodsOpen(false)}
+          customFoods={customFoods}
+          onRemove={handleRemoveCustomFood}
         />
       )}
     </div>

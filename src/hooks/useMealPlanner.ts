@@ -204,6 +204,23 @@ export function useMealPlanner() {
     }
   }, [dayPlans]);
 
+  const [solverFocus, setSolverFocus] = useState<'balanced' | 'protein' | 'calories'>(() => {
+    try {
+      const saved = localStorage.getItem('meal_planner_solver_focus');
+      return (saved as 'balanced' | 'protein' | 'calories') || 'balanced';
+    } catch {
+      return 'balanced';
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('meal_planner_solver_focus', solverFocus);
+    } catch (e) {
+      console.warn('LocalStorage save error:', e);
+    }
+  }, [solverFocus]);
+
   const [customFoods, setCustomFoods] = useState<FoodItem[]>(() => {
     try {
       const saved = localStorage.getItem('meal_planner_custom_foods');
@@ -250,8 +267,8 @@ export function useMealPlanner() {
 
   // Solver running & state evaluation
   const solverResult = useMemo<SolverResult>(() => {
-    return solveDayMenu(currentPlan.meals, mergedFoodDatabase, currentPlanTargets, activeDay);
-  }, [currentPlan.meals, currentPlanTargets, activeDay, mergedFoodDatabase]);
+    return solveDayMenu(currentPlan.meals, mergedFoodDatabase, currentPlanTargets, activeDay, solverFocus);
+  }, [currentPlan.meals, currentPlanTargets, activeDay, mergedFoodDatabase, solverFocus]);
 
   // If autoSolve is enabled, use optimized meals, else use raw plan meals
   const activeMeals = autoSolve ? solverResult.optimizedMeals : currentPlan.meals;
@@ -416,6 +433,10 @@ export function useMealPlanner() {
     setCustomFoods(prev => [...prev, food]);
   };
 
+  const handleRemoveCustomFood = (id: string) => {
+    setCustomFoods(prev => prev.filter(f => f.id !== id));
+  };
+
   return {
     FOOD_DATABASE: mergedFoodDatabase,
     activeDay,
@@ -441,6 +462,10 @@ export function useMealPlanner() {
     handleToggleLock,
     handleResetDay,
     runSolverTrigger,
-    handleAddCustomFood
+    handleAddCustomFood,
+    handleRemoveCustomFood,
+    customFoods,
+    solverFocus,
+    setSolverFocus
   };
 }

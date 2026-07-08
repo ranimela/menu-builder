@@ -75,7 +75,8 @@ export function solveDayMenu(
   meals: Meal[],
   foodDb: FoodItem[],
   targets: TargetMacros,
-  dayId: 'sun_thu' | 'fri' | 'sat'
+  dayId: 'sun_thu' | 'fri' | 'sat',
+  focus: 'balanced' | 'protein' | 'calories' = 'balanced'
 ): SolverResult {
   // 1. Deep clone the meals to avoid mutating state
   const optimizedMeals: Meal[] = JSON.parse(JSON.stringify(meals));
@@ -110,11 +111,19 @@ export function solveDayMenu(
     }
   }
 
-  // Weight coefficients for our loss function
-  const W_CAL = 0.5;
-  const W_PRO = 4.0;
-  const W_CARB = 1.0;
-  const W_FAT = 2.0;
+  // Weight coefficients for our loss function based on user focus preference
+  let W_CAL = 0.5;
+  let W_PRO = 4.0;
+  let W_CARB = 1.0;
+  let W_FAT = 2.0;
+
+  if (focus === 'protein') {
+    W_PRO = 12.0;
+    W_CAL = 0.1;
+  } else if (focus === 'calories') {
+    W_CAL = 3.0;
+    W_PRO = 1.0;
+  }
 
   // Loss function: measures how far we are from targets
   const getLoss = (currentMeals: Meal[]) => {
