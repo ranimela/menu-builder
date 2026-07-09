@@ -45,10 +45,11 @@ export function getFoodLimits(
   foodId: string,
   dayId: string,
   mealId: string,
-  baseFood: FoodItem
+  _baseFood: FoodItem
 ): { min: number; max: number } {
-  let min = baseFood.minQuantity;
-  let max = baseFood.maxQuantity;
+  // Enforce zero minimum limit unless a system constraint overrides it
+  let min = 0;
+  let max = 99999; // Allow unlimited maximum sizes
 
   // Query declarative system constraints
   for (const constraint of SYSTEM_CONSTRAINTS) {

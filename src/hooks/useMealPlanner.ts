@@ -49,7 +49,10 @@ function createDefaultMeals(dayId: 'sun_thu' | 'fri' | 'sat'): Meal[] {
           { foodId: 'whey_protein', quantity: 1, locked: false },
           { foodId: 'white_cheese_5', quantity: 150, locked: false },
           { foodId: 'flax_seeds', quantity: 15, locked: false },
-          { foodId: 'pumpkin_seeds', quantity: 30, locked: false }
+          { foodId: 'pumpkin_seeds', quantity: 30, locked: false },
+          { foodId: 'rice_cake', quantity: 1, locked: false },
+          { foodId: 'jam', quantity: 20, locked: false },
+          { foodId: 'raw_oats', quantity: 50, locked: false }
         ]
       }
     ];
@@ -61,7 +64,10 @@ function createDefaultMeals(dayId: 'sun_thu' | 'fri' | 'sat'): Meal[] {
         foods: [
           { foodId: 'white_rice', quantity: 200, locked: false },
           { foodId: 'mixed_salad', quantity: 250, locked: false },
-          { foodId: 'whey_protein', quantity: 1, locked: false }
+          { foodId: 'whey_protein', quantity: 1, locked: false },
+          { foodId: 'rice_cake', quantity: 1, locked: false },
+          { foodId: 'jam', quantity: 20, locked: false },
+          { foodId: 'raw_oats', quantity: 50, locked: false }
         ]
       }
     ];
