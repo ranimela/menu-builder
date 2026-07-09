@@ -21,8 +21,7 @@ function createDefaultMeals(dayId: 'sun_thu' | 'fri' | 'sat'): Meal[] {
           { foodId: 'beef', quantity: 150, locked: false },
           { foodId: 'white_rice', quantity: 200, locked: false },
           { foodId: 'mixed_salad', quantity: 250, locked: false },
-          { foodId: 'whey_protein', quantity: 1, locked: false },
-          { foodId: 'medjool_dates', quantity: 3, locked: true }
+          { foodId: 'whey_protein', quantity: 1, locked: false }
         ]
       },
       {
@@ -49,7 +48,6 @@ function createDefaultMeals(dayId: 'sun_thu' | 'fri' | 'sat'): Meal[] {
           { foodId: 'mixed_salad', quantity: 250, locked: false },
           { foodId: 'whey_protein', quantity: 1, locked: false },
           { foodId: 'white_cheese_5', quantity: 150, locked: false },
-          { foodId: 'whole_egg', quantity: 2, locked: true },
           { foodId: 'flax_seeds', quantity: 15, locked: false },
           { foodId: 'pumpkin_seeds', quantity: 30, locked: false }
         ]
@@ -61,11 +59,9 @@ function createDefaultMeals(dayId: 'sun_thu' | 'fri' | 'sat'): Meal[] {
         id: 'omad_meal',
         name: 'OMAD Meal',
         foods: [
-          { foodId: 'beef', quantity: 400, locked: true },
           { foodId: 'white_rice', quantity: 200, locked: false },
           { foodId: 'mixed_salad', quantity: 250, locked: false },
-          { foodId: 'whey_protein', quantity: 1, locked: false },
-          { foodId: 'medjool_dates', quantity: 3, locked: true }
+          { foodId: 'whey_protein', quantity: 1, locked: false }
         ]
       }
     ];
