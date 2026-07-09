@@ -6,9 +6,9 @@ import defaultFoodDb from '../../foodItems.json';
 const FOOD_DATABASE = defaultFoodDb as FoodItem[];
 
 const INITIAL_RATIOS: Record<'sun_thu' | 'fri' | 'sat', TargetRatios> = {
-  sun_thu: { proteinPerKg: 2.0, carbsPerKg: 2.5, fatPerKg: 0.7 },
-  fri: { proteinPerKg: 2.0, carbsPerKg: 2.5, fatPerKg: 0.7 },
-  sat: { proteinPerKg: 2.0, carbsPerKg: 2.5, fatPerKg: 0.7 },
+  sun_thu: { proteinPerKg: 2.2, carbsPerKg: 3.0, fatPerKg: 0.8 },
+  fri: { proteinPerKg: 2.2, carbsPerKg: 3.0, fatPerKg: 0.8 },
+  sat: { proteinPerKg: 2.2, carbsPerKg: 3.0, fatPerKg: 0.8 },
 };
 
 function createDefaultMeals(dayId: 'sun_thu' | 'fri' | 'sat'): Meal[] {
