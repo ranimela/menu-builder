@@ -6,7 +6,8 @@ import { MealSection } from './components/MealSection';
 import { CarbAlternativesTable } from './components/CarbAlternativesTable';
 import { CustomFoodModal } from './components/CustomFoodModal';
 import { ManageCustomFoodsModal } from './components/ManageCustomFoodsModal';
-import { Sparkles, Calendar, Share2, RefreshCw, AlertTriangle, CheckCircle, PlusCircle, ArrowUpCircle, Settings } from 'lucide-react';
+import { ProfileSidebar } from './components/ProfileSidebar';
+import { Sparkles, Calendar, Share2, RefreshCw, AlertTriangle, CheckCircle, PlusCircle, ArrowUpCircle, Settings, Users } from 'lucide-react';
 import { calculateTotals, getNutrition } from './utils/solver';
 
 export const App: React.FC = () => {
@@ -37,12 +38,19 @@ export const App: React.FC = () => {
     handleRemoveCustomFood,
     customFoods,
     solverFocus,
-    setSolverFocus
+    setSolverFocus,
+    profiles,
+    activeProfileId,
+    handleCreateProfile,
+    handleSelectProfile,
+    handleDeleteProfile,
+    handleRenameProfile
   } = useMealPlanner();
 
   const [isCustomFoodOpen, setIsCustomFoodOpen] = useState(false);
   const [isManageFoodsOpen, setIsManageFoodsOpen] = useState(false);
   const [showUpdateBanner, setShowUpdateBanner] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Check for service worker updates
   useEffect(() => {
@@ -124,31 +132,71 @@ export const App: React.FC = () => {
   const isOptimal = solverResult.status === 'optimal';
 
   return (
-    <div className="min-h-screen bg-brand-bg text-brand-primary font-sans pb-16">
-      {/* SW Update Notification Banner */}
-      {showUpdateBanner && (
-        <div className="bg-brand-accent text-white px-4 py-2 text-center text-xs font-bold flex items-center justify-center gap-2 sticky top-0 z-50">
-          <ArrowUpCircle className="h-4 w-4 animate-bounce" />
-          A new version of the app is available.
-          <button onClick={handleReloadApp} className="underline cursor-pointer ml-1 hover:text-brand-highlight">
-            Click here to refresh and update
-          </button>
+    <div className="min-h-screen bg-brand-bg text-brand-primary font-sans flex">
+      {/* Sidebar for Desktop */}
+      <aside className="hidden md:block w-64 shrink-0 h-screen sticky top-0">
+        <ProfileSidebar
+          profiles={profiles}
+          activeProfileId={activeProfileId}
+          onSelectProfile={handleSelectProfile}
+          onCreateProfile={handleCreateProfile}
+          onDeleteProfile={handleDeleteProfile}
+          onRenameProfile={handleRenameProfile}
+        />
+      </aside>
+
+      {/* Sidebar Drawer for Mobile */}
+      {isSidebarOpen && (
+        <div className="fixed inset-0 z-50 flex md:hidden bg-slate-900/40 backdrop-blur-sm">
+          <div className="w-64 max-w-xs h-full bg-brand-card shadow-2xl">
+            <ProfileSidebar
+              profiles={profiles}
+              activeProfileId={activeProfileId}
+              onSelectProfile={handleSelectProfile}
+              onCreateProfile={handleCreateProfile}
+              onDeleteProfile={handleDeleteProfile}
+              onRenameProfile={handleRenameProfile}
+              onCloseMobile={() => setIsSidebarOpen(false)}
+            />
+          </div>
+          {/* Click outside to close */}
+          <div className="flex-1" onClick={() => setIsSidebarOpen(false)} />
         </div>
       )}
 
-      <header className="border-b border-brand-border bg-brand-card/90 backdrop-blur-md sticky top-[inherit] z-40 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-tr from-brand-accent to-brand-secondary p-2.5 rounded-xl shadow-lg">
-              <Sparkles className="h-6 w-6 text-brand-primary animate-pulse" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-brand-primary via-brand-accent to-brand-primary bg-clip-text text-transparent">
-                Macro-Constrained Menu Generator
-              </h1>
-              <p className="text-xs text-slate-500">Calculate targets dynamically from your weight and g/kg ratios</p>
-            </div>
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0 pb-16">
+        {/* SW Update Notification Banner */}
+        {showUpdateBanner && (
+          <div className="bg-brand-accent text-white px-4 py-2 text-center text-xs font-bold flex items-center justify-center gap-2 sticky top-0 z-50">
+            <ArrowUpCircle className="h-4 w-4 animate-bounce" />
+            A new version of the app is available.
+            <button onClick={handleReloadApp} className="underline cursor-pointer ml-1 hover:text-brand-highlight">
+              Click here to refresh and update
+            </button>
           </div>
+        )}
+
+        <header className="border-b border-brand-border bg-brand-card/90 backdrop-blur-md sticky top-[inherit] z-40 shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="md:hidden p-2 border border-brand-border rounded-xl bg-brand-card hover:bg-brand-bg transition text-brand-primary shrink-0"
+                title="Open Profiles"
+              >
+                <Users className="h-5 w-5" />
+              </button>
+              <div className="bg-gradient-to-tr from-brand-accent to-brand-secondary p-2.5 rounded-xl shadow-lg">
+                <Sparkles className="h-6 w-6 text-brand-primary animate-pulse" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-brand-primary via-brand-accent to-brand-primary bg-clip-text text-transparent">
+                  Macro-Constrained Menu Generator
+                </h1>
+                <p className="text-xs text-slate-500">Calculate targets dynamically from your weight and g/kg ratios</p>
+              </div>
+            </div>
           
           <div className="flex bg-brand-bg p-1.5 rounded-xl border border-brand-border">
             {(['sun_thu', 'fri', 'sat'] as const).map((dayId) => {
@@ -327,6 +375,7 @@ export const App: React.FC = () => {
           onRemove={handleRemoveCustomFood}
         />
       )}
+      </div>
     </div>
   );
 };
