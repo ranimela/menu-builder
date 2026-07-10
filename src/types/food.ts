@@ -70,3 +70,14 @@ export interface SolverResult {
   loss: number;
 }
 
+export interface UserProfile {
+  id: string;
+  name: string;
+  weight: number;
+  activeDay: 'sun_thu' | 'fri' | 'sat';
+  autoSolve: boolean;
+  selectedSwaps: Record<string, string>;
+  dayPlans: Record<'sun_thu' | 'fri' | 'sat', DayPlan>;
+  solverFocus: 'balanced' | 'protein' | 'calories';
+}
+

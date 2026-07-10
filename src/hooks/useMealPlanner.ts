@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import type { FoodItem, Meal, DayPlan, TargetMacros, TargetRatios, SolverResult } from '../types/food';
+import type { FoodItem, Meal, TargetMacros, TargetRatios, SolverResult, UserProfile } from '../types/food';
 import { solveDayMenu, calculateTotals, getFoodLimits } from '../utils/solver';
 import defaultFoodDb from '../../foodItems.json';
 
@@ -87,14 +87,6 @@ function computeTargetMacros(weight: number, ratios: TargetRatios): TargetMacros
   };
 }
 
-const STORAGE_KEYS = {
-  WEIGHT: 'meal_planner_weight',
-  ACTIVE_DAY: 'meal_planner_active_day',
-  AUTO_SOLVE: 'meal_planner_auto_solve',
-  DAY_PLANS: 'meal_planner_day_plans',
-  SELECTED_SWAPS: 'meal_planner_selected_swaps'
-};
-
 const DEFAULT_DAY_PLANS = {
   sun_thu: {
     dayId: 'sun_thu' as const,
@@ -120,108 +112,122 @@ const DEFAULT_DAY_PLANS = {
 };
 
 export function useMealPlanner() {
-  const [activeDay, setActiveDay] = useState<'sun_thu' | 'fri' | 'sat'>(() => {
+  const [profiles, setProfiles] = useState<UserProfile[]>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEYS.ACTIVE_DAY);
-      return (saved as 'sun_thu' | 'fri' | 'sat') || 'sun_thu';
-    } catch {
-      return 'sun_thu';
+      const savedProfiles = localStorage.getItem('meal_planner_profiles');
+      if (savedProfiles) {
+        const parsed = JSON.parse(savedProfiles);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to parse profiles', e);
     }
+
+    // Try to load legacy local storage values to construct initial profile
+    let legacyWeight = 71;
+    try {
+      const savedWeight = localStorage.getItem('meal_planner_weight');
+      if (savedWeight) legacyWeight = Number(savedWeight);
+    } catch {}
+
+    let legacyActiveDay: 'sun_thu' | 'fri' | 'sat' = 'sun_thu';
+    try {
+      const savedActiveDay = localStorage.getItem('meal_planner_active_day');
+      if (savedActiveDay === 'sun_thu' || savedActiveDay === 'fri' || savedActiveDay === 'sat') {
+        legacyActiveDay = savedActiveDay;
+      }
+    } catch {}
+
+    let legacyAutoSolve = true;
+    try {
+      const savedAutoSolve = localStorage.getItem('meal_planner_auto_solve');
+      if (savedAutoSolve !== null) legacyAutoSolve = savedAutoSolve === 'true';
+    } catch {}
+
+    let legacySelectedSwaps: Record<string, string> = {};
+    try {
+      const savedSelectedSwaps = localStorage.getItem('meal_planner_selected_swaps');
+      if (savedSelectedSwaps) legacySelectedSwaps = JSON.parse(savedSelectedSwaps);
+    } catch {}
+
+    let legacyDayPlans = DEFAULT_DAY_PLANS;
+    try {
+      const savedDayPlans = localStorage.getItem('meal_planner_day_plans');
+      if (savedDayPlans) legacyDayPlans = JSON.parse(savedDayPlans);
+    } catch {}
+
+    let legacySolverFocus: 'balanced' | 'protein' | 'calories' = 'balanced';
+    try {
+      const savedSolverFocus = localStorage.getItem('meal_planner_solver_focus');
+      if (savedSolverFocus === 'balanced' || savedSolverFocus === 'protein' || savedSolverFocus === 'calories') {
+        legacySolverFocus = savedSolverFocus;
+      }
+    } catch {}
+
+    const defaultProfile: UserProfile = {
+      id: 'default',
+      name: 'Default Profile',
+      weight: legacyWeight,
+      activeDay: legacyActiveDay,
+      autoSolve: legacyAutoSolve,
+      selectedSwaps: legacySelectedSwaps,
+      dayPlans: legacyDayPlans,
+      solverFocus: legacySolverFocus
+    };
+
+    return [defaultProfile];
   });
 
-  const [weight, setWeight] = useState<number>(() => {
+  const [activeProfileId, setActiveProfileId] = useState<string>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEYS.WEIGHT);
-      return saved ? Number(saved) : 71;
-    } catch {
-      return 71;
-    }
+      const savedActiveProfileId = localStorage.getItem('meal_planner_active_profile_id');
+      if (savedActiveProfileId) {
+        return savedActiveProfileId;
+      }
+    } catch {}
+    return 'default';
   });
 
-  const [autoSolve, setAutoSolve] = useState<boolean>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.AUTO_SOLVE);
-      return saved !== null ? saved === 'true' : true;
-    } catch {
-      return true;
-    }
-  });
+  const activeProfile = useMemo(() => {
+    return profiles.find(p => p.id === activeProfileId) || profiles[0] || {
+      id: 'default',
+      name: 'Default Profile',
+      weight: 71,
+      activeDay: 'sun_thu' as const,
+      autoSolve: true,
+      selectedSwaps: {},
+      dayPlans: DEFAULT_DAY_PLANS,
+      solverFocus: 'balanced' as const
+    };
+  }, [profiles, activeProfileId]);
 
-  const [selectedSwaps, setSelectedSwaps] = useState<Record<string, string>>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.SELECTED_SWAPS);
-      return saved ? JSON.parse(saved) : {};
-    } catch {
-      return {};
-    }
-  });
-
-  const [dayPlans, setDayPlans] = useState<Record<'sun_thu' | 'fri' | 'sat', DayPlan>>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.DAY_PLANS);
-      return saved ? JSON.parse(saved) : DEFAULT_DAY_PLANS;
-    } catch {
-      return DEFAULT_DAY_PLANS;
-    }
-  });
+  const {
+    weight,
+    activeDay,
+    autoSolve,
+    selectedSwaps,
+    dayPlans,
+    solverFocus
+  } = activeProfile;
 
   // Sync to local storage
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEYS.ACTIVE_DAY, activeDay);
+      localStorage.setItem('meal_planner_profiles', JSON.stringify(profiles));
     } catch (e) {
       console.warn('LocalStorage save error:', e);
     }
-  }, [activeDay]);
+  }, [profiles]);
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEYS.WEIGHT, String(weight));
+      localStorage.setItem('meal_planner_active_profile_id', activeProfileId);
     } catch (e) {
       console.warn('LocalStorage save error:', e);
     }
-  }, [weight]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.AUTO_SOLVE, String(autoSolve));
-    } catch (e) {
-      console.warn('LocalStorage save error:', e);
-    }
-  }, [autoSolve]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.SELECTED_SWAPS, JSON.stringify(selectedSwaps));
-    } catch (e) {
-      console.warn('LocalStorage save error:', e);
-    }
-  }, [selectedSwaps]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.DAY_PLANS, JSON.stringify(dayPlans));
-    } catch (e) {
-      console.warn('LocalStorage save error:', e);
-    }
-  }, [dayPlans]);
-
-  const [solverFocus, setSolverFocus] = useState<'balanced' | 'protein' | 'calories'>(() => {
-    try {
-      const saved = localStorage.getItem('meal_planner_solver_focus');
-      return (saved as 'balanced' | 'protein' | 'calories') || 'balanced';
-    } catch {
-      return 'balanced';
-    }
-  });
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('meal_planner_solver_focus', solverFocus);
-    } catch (e) {
-      console.warn('LocalStorage save error:', e);
-    }
-  }, [solverFocus]);
+  }, [activeProfileId]);
 
   const [customFoods, setCustomFoods] = useState<FoodItem[]>(() => {
     try {
@@ -240,22 +246,68 @@ export function useMealPlanner() {
     }
   }, [customFoods]);
 
+  const updateActiveProfile = (updater: (profile: UserProfile) => UserProfile) => {
+    setProfiles(prev => prev.map(p => p.id === activeProfileId ? updater(p) : p));
+  };
+
+  const setActiveDay = (val: 'sun_thu' | 'fri' | 'sat' | ((prev: 'sun_thu' | 'fri' | 'sat') => 'sun_thu' | 'fri' | 'sat')) => {
+    updateActiveProfile(p => ({
+      ...p,
+      activeDay: typeof val === 'function' ? val(p.activeDay) : val
+    }));
+  };
+
+  const setWeight = (val: number | ((prev: number) => number)) => {
+    updateActiveProfile(p => ({
+      ...p,
+      weight: typeof val === 'function' ? val(p.weight) : val
+    }));
+  };
+
+  const setAutoSolve = (val: boolean | ((prev: boolean) => boolean)) => {
+    updateActiveProfile(p => ({
+      ...p,
+      autoSolve: typeof val === 'function' ? val(p.autoSolve) : val
+    }));
+  };
+
+  const setSelectedSwaps = (val: Record<string, string> | ((prev: Record<string, string>) => Record<string, string>)) => {
+    updateActiveProfile(p => ({
+      ...p,
+      selectedSwaps: typeof val === 'function' ? val(p.selectedSwaps) : val
+    }));
+  };
+
+  const setSolverFocus = (val: ('balanced' | 'protein' | 'calories') | ((prev: ('balanced' | 'protein' | 'calories')) => ('balanced' | 'protein' | 'calories'))) => {
+    updateActiveProfile(p => ({
+      ...p,
+      solverFocus: typeof val === 'function' ? val(p.solverFocus) : val
+    }));
+  };
+
   const mergedFoodDatabase = useMemo(() => {
     return [...FOOD_DATABASE, ...customFoods];
   }, [customFoods]);
 
   useEffect(() => {
     // Keep active swaps safe
-    setSelectedSwaps(prev => {
-      const activeSwaps = { ...prev };
+    updateActiveProfile(p => {
+      const activeSwaps = { ...p.selectedSwaps };
       let changed = false;
+      const currentPlan = p.dayPlans[p.activeDay];
       for (const key of Object.keys(activeSwaps)) {
         if (!currentPlan.meals.some(m => m.id === key)) {
           delete activeSwaps[key];
           changed = true;
         }
       }
-      return changed ? activeSwaps : prev;
+      if (changed) {
+        return {
+          ...p,
+          selectedSwaps: activeSwaps
+        };
+      }
+      return p;
     });
   }, [activeDay]);
 
@@ -328,14 +380,17 @@ export function useMealPlanner() {
   }, [activeMeals, selectedSwaps, foodMap]);
 
   const handlePlanChange = (updatedMeals: Meal[], updatedRatios?: TargetRatios) => {
-    setDayPlans(prev => {
-      const ratios = updatedRatios || prev[activeDay].ratios;
+    updateActiveProfile(p => {
+      const ratios = updatedRatios || p.dayPlans[p.activeDay].ratios;
       return {
-        ...prev,
-        [activeDay]: {
-          ...prev[activeDay],
-          ratios,
-          meals: updatedMeals
+        ...p,
+        dayPlans: {
+          ...p.dayPlans,
+          [p.activeDay]: {
+            ...p.dayPlans[p.activeDay],
+            ratios,
+            meals: updatedMeals
+          }
         }
       };
     });
@@ -439,6 +494,58 @@ export function useMealPlanner() {
     setCustomFoods(prev => prev.filter(f => f.id !== id));
   };
 
+  const handleCreateProfile = (name: string) => {
+    const newId = Math.random().toString(36).substring(2, 9);
+    const newProfile: UserProfile = {
+      id: newId,
+      name: name.trim() || `Profile ${newId}`,
+      weight: 71,
+      activeDay: 'sun_thu',
+      autoSolve: true,
+      selectedSwaps: {},
+      dayPlans: DEFAULT_DAY_PLANS,
+      solverFocus: 'balanced'
+    };
+    setProfiles(prev => [...prev, newProfile]);
+    setActiveProfileId(newId);
+  };
+
+  const handleSelectProfile = (id: string) => {
+    if (profiles.some(p => p.id === id)) {
+      setActiveProfileId(id);
+    }
+  };
+
+  const handleDeleteProfile = (id: string) => {
+    setProfiles(prev => {
+      const filtered = prev.filter(p => p.id !== id);
+      if (filtered.length === 0) {
+        const defaultProfile: UserProfile = {
+          id: 'default',
+          name: 'Default Profile',
+          weight: 71,
+          activeDay: 'sun_thu',
+          autoSolve: true,
+          selectedSwaps: {},
+          dayPlans: DEFAULT_DAY_PLANS,
+          solverFocus: 'balanced'
+        };
+        setActiveProfileId('default');
+        return [defaultProfile];
+      }
+      if (activeProfileId === id) {
+        setActiveProfileId(filtered[0].id);
+      }
+      return filtered;
+    });
+  };
+
+  const handleRenameProfile = (id: string, newName: string) => {
+    const trimmed = newName.trim();
+    if (!trimmed) return;
+    setProfiles(prev => prev.map(p => p.id === id ? { ...p, name: trimmed } : p));
+  };
+
   return {
     FOOD_DATABASE: mergedFoodDatabase,
     activeDay,
@@ -468,6 +575,12 @@ export function useMealPlanner() {
     handleRemoveCustomFood,
     customFoods,
     solverFocus,
-    setSolverFocus
+    setSolverFocus,
+    profiles,
+    activeProfileId,
+    handleCreateProfile,
+    handleSelectProfile,
+    handleDeleteProfile,
+    handleRenameProfile
   };
 }
