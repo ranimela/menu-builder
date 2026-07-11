@@ -123,12 +123,26 @@ export const MealSection: React.FC<MealSectionProps> = ({
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-2">
                         <input
-                          type="number"
-                          step={food.step || 1}
-                          min={limits.min}
-                          max={limits.max}
-                          value={item.quantity}
-                          onChange={(e) => onQuantityChange(meal.id, item.foodId, parseFloat(e.target.value) || 0)}
+                          type="text"
+                          inputMode="decimal"
+                          value={item.quantity === 0 ? '' : item.quantity}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === '') {
+                              onQuantityChange(meal.id, item.foodId, 0);
+                            } else {
+                              const parsed = parseFloat(val);
+                              if (!isNaN(parsed)) {
+                                onQuantityChange(meal.id, item.foodId, parsed);
+                              }
+                            }
+                          }}
+                          onBlur={(e) => {
+                            // On blur, if it's empty, enforce default limit boundaries
+                            if (e.target.value === '') {
+                              onQuantityChange(meal.id, item.foodId, limits.min || 0);
+                            }
+                          }}
                           className="w-20 bg-brand-bg border border-brand-border text-brand-primary focus:border-brand-accent rounded-lg text-sm font-semibold px-2 py-1 outline-none"
                         />
                         <span className="text-xs text-slate-500 font-semibold">{food.unit}</span>

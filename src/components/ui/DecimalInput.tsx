@@ -28,6 +28,11 @@ export const DecimalInput: React.FC<DecimalInputProps> = ({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const valStr = e.target.value;
     setLocalValue(valStr);
+    
+    if (valStr.trim() === '') {
+      return; // Allow empty input temporarily during typing
+    }
+    
     const parsed = parseFloat(valStr);
     if (!isNaN(parsed)) {
       const clamped = Math.max(min, Math.min(max, parsed));
