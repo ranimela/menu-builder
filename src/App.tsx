@@ -8,7 +8,7 @@ import { CustomFoodModal } from './components/CustomFoodModal';
 import { ManageCustomFoodsModal } from './components/ManageCustomFoodsModal';
 import { ProfileSidebar } from './components/ProfileSidebar';
 import { Sparkles, Calendar, Share2, RefreshCw, AlertTriangle, CheckCircle, PlusCircle, ArrowUpCircle, Settings, Users } from 'lucide-react';
-import { calculateTotals, getNutrition } from './utils/solver';
+import { calculateMealTotals, getNutrition, getSwapDetails } from './utils/solver';
 
 export const App: React.FC = () => {
   const {
@@ -82,7 +82,8 @@ export const App: React.FC = () => {
     for (const meal of activeMeals) {
       for (const food of meal.foods) {
         if (food.foodId === 'white_rice') {
-          total += food.quantity;
+          const qty = typeof food.quantity === 'number' && !isNaN(food.quantity) ? Math.max(0, food.quantity) : 0;
+          total += qty;
         }
       }
     }
@@ -94,14 +95,19 @@ export const App: React.FC = () => {
     const pad = (n: number) => n.toString().padStart(2, '0');
     const timestamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
 
-    const actProRatio = weight > 0 ? Math.round((actualTotals.protein / weight) * 10) / 10 : 0;
-    const actCarbRatio = weight > 0 ? Math.round((actualTotals.carbs / weight) * 10) / 10 : 0;
-    const actFatRatio = weight > 0 ? Math.round((actualTotals.fat / weight) * 10) / 10 : 0;
+    const safeWeight = typeof weight === 'number' && !isNaN(weight) && weight > 0 ? weight : 0;
+    const actProRatio = safeWeight > 0 ? (Math.round((actualTotals.protein / safeWeight) * 10) / 10) || 0 : 0;
+    const actCarbRatio = safeWeight > 0 ? (Math.round((actualTotals.carbs / safeWeight) * 10) / 10) || 0 : 0;
+    const actFatRatio = safeWeight > 0 ? (Math.round((actualTotals.fat / safeWeight) * 10) / 10) || 0 : 0;
 
-    let text = `# Meal Plan: ${currentPlan.name} (${weight}kg) [${timestamp}]\n\n`;
-    text += `Target Macros: ${Math.round(currentPlanTargets.calories)} kcal | ${Math.round(currentPlanTargets.protein)}g P | ${Math.round(currentPlanTargets.carbs)}g C | ${Math.round(currentPlanTargets.fat)}g F\n`;
+    const safeTargetProRatio = typeof currentPlan?.ratios?.proteinPerKg === 'number' && !isNaN(currentPlan.ratios.proteinPerKg) ? currentPlan.ratios.proteinPerKg : 0;
+    const safeTargetCarbRatio = typeof currentPlan?.ratios?.carbsPerKg === 'number' && !isNaN(currentPlan.ratios.carbsPerKg) ? currentPlan.ratios.carbsPerKg : 0;
+    const safeTargetFatRatio = typeof currentPlan?.ratios?.fatPerKg === 'number' && !isNaN(currentPlan.ratios.fatPerKg) ? currentPlan.ratios.fatPerKg : 0;
+
+    let text = `# Meal Plan: ${currentPlan.name} (${safeWeight}kg) [${timestamp}]\n\n`;
+    text += `Target Macros: ${Math.round(currentPlanTargets.calories)} kcal | ${Math.round(currentPlanTargets.protein * 10) / 10}g P | ${Math.round(currentPlanTargets.carbs * 10) / 10}g C | ${Math.round(currentPlanTargets.fat * 10) / 10}g F\n`;
     text += `Actual Macros: ${Math.round(actualTotals.calories)} kcal | ${Math.round(actualTotals.protein * 10) / 10}g P | ${Math.round(actualTotals.carbs * 10) / 10}g C | ${Math.round(actualTotals.fat * 10) / 10}g F\n`;
-    text += `Target Ratios: ${currentPlan.ratios.proteinPerKg.toFixed(1)}g/kg P | ${currentPlan.ratios.carbsPerKg.toFixed(1)}g/kg C | ${currentPlan.ratios.fatPerKg.toFixed(1)}g/kg F\n`;
+    text += `Target Ratios: ${safeTargetProRatio.toFixed(1)}g/kg P | ${safeTargetCarbRatio.toFixed(1)}g/kg C | ${safeTargetFatRatio.toFixed(1)}g/kg F\n`;
     text += `Actual Ratios: ${actProRatio.toFixed(1)}g/kg P | ${actCarbRatio.toFixed(1)}g/kg C | ${actFatRatio.toFixed(1)}g/kg F\n\n`;
 
     text += `## Meals:\n`;
@@ -110,11 +116,18 @@ export const App: React.FC = () => {
       if (meal.foods.length === 0) {
         text += `  (No items selected)\n`;
       } else {
+        const swapFoodId = selectedSwaps[meal.id];
+        const swap = swapFoodId ? getSwapDetails(meal, swapFoodId, foodMap) : null;
+
         for (const item of meal.foods) {
           const food = foodMap.get(item.foodId);
           if (food) {
-            const nut = getNutrition(food, item.quantity);
-            text += `  - ${food.name}: ${item.quantity}${food.unit} (${Math.round(nut.calories)} kcal, ${Math.round(nut.protein * 10) / 10}g P, ${Math.round(nut.carbs * 10) / 10}g C, ${Math.round(nut.fat * 10) / 10}g F)\n`;
+            if (swap && item.foodId === 'white_rice') {
+              text += `  - ${food.name} [SWAPPED with ${swap.altFood.name} ${swap.roundedQty}${swap.altFood.unit}]: (${Math.round(swap.altNut.calories)} kcal, ${Math.round(swap.altNut.protein * 10) / 10}g P, ${Math.round(swap.altNut.carbs * 10) / 10}g C, ${Math.round(swap.altNut.fat * 10) / 10}g F)\n`;
+            } else {
+              const nut = getNutrition(food, item.quantity);
+              text += `  - ${food.name}: ${item.quantity}${food.unit} (${Math.round(nut.calories)} kcal, ${Math.round(nut.protein * 10) / 10}g P, ${Math.round(nut.carbs * 10) / 10}g C, ${Math.round(nut.fat * 10) / 10}g F)\n`;
+            }
           }
         }
       }
@@ -266,7 +279,7 @@ export const App: React.FC = () => {
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Focus:</span>
               <select
                 value={solverFocus}
-                onChange={(e) => setSolverFocus(e.target.value as any)}
+                onChange={(e) => setSolverFocus(e.target.value as 'balanced' | 'protein' | 'calories')}
                 className="bg-brand-bg border border-brand-border text-xs font-bold rounded-lg px-2 py-1 outline-none text-brand-primary cursor-pointer"
               >
                 <option value="balanced">⚖️ Balanced</option>
@@ -332,7 +345,7 @@ export const App: React.FC = () => {
 
           <div className="grid grid-cols-1 gap-8">
             {activeMeals.map((meal) => {
-              const mealTotals = calculateTotals([meal], FOOD_DATABASE);
+              const mealTotals = calculateMealTotals(meal, foodMap, selectedSwaps[meal.id]);
               return (
                 <MealSection
                   key={meal.id}

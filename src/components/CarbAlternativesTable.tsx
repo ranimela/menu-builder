@@ -1,17 +1,32 @@
 import React, { useMemo } from 'react';
 import type { FoodItem } from '../types/food';
 import { Wheat } from 'lucide-react';
+import { getNutrition } from '../utils/solver';
 
 interface CarbAlternativesTableProps {
   totalRiceQuantity: number;
   foodMap: Map<string, FoodItem>;
 }
 
+interface CarbAlternativeEntry {
+  food: FoodItem;
+  quantity: number;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+}
+
 export const CarbAlternativesTable: React.FC<CarbAlternativesTableProps> = ({
   totalRiceQuantity,
   foodMap
 }) => {
-  const carbAlternatives = useMemo(() => {
+  const safeRiceQty = typeof totalRiceQuantity === 'number' && !isNaN(totalRiceQuantity) && totalRiceQuantity > 0 ? totalRiceQuantity : 0;
+  const riceFood = foodMap.get('white_rice');
+  const riceCarbsPerServing = (riceFood && riceFood.servingSize > 0) ? ((riceFood.carbs || 0) / riceFood.servingSize) : 0.28;
+  const totalRiceCarbs = safeRiceQty * riceCarbsPerServing;
+
+  const carbAlternatives = useMemo<CarbAlternativeEntry[]>(() => {
     const alternativeIds = [
       'white_rice',
       'quinoa',
@@ -24,33 +39,33 @@ export const CarbAlternativesTable: React.FC<CarbAlternativesTableProps> = ({
       'cooked_lentils'
     ];
 
-    const riceFood = foodMap.get('white_rice');
     if (!riceFood || !riceFood.servingSize || riceFood.servingSize <= 0) return [];
 
-    const totalRiceCarbs = totalRiceQuantity * (riceFood.carbs / riceFood.servingSize);
+    const list: CarbAlternativeEntry[] = [];
 
-    return alternativeIds.map(id => {
+    for (const id of alternativeIds) {
       const food = foodMap.get(id);
-      if (!food || !food.servingSize || food.servingSize <= 0) return null;
+      if (!food || !food.servingSize || food.servingSize <= 0) continue;
 
-      const carbDensity = food.carbs / food.servingSize;
+      const carbDensity = (food.carbs || 0) / food.servingSize;
       const equivQty = carbDensity > 0 ? totalRiceCarbs / carbDensity : 0;
 
-      const step = 10;
-      const roundedQty = Math.round(equivQty / step) * step;
+      const step = food.step && food.step > 0 ? food.step : 10;
+      const roundedQty = Math.round((Math.round(equivQty / step) * step) * 100) / 100;
+      const nut = getNutrition(food, roundedQty);
 
-      const ratio = roundedQty / food.servingSize;
-
-      return {
+      list.push({
         food,
         quantity: Math.round(roundedQty * 10) / 10,
-        calories: Math.round(food.calories * ratio),
-        protein: Math.round(food.protein * ratio * 10) / 10,
-        carbs: Math.round(food.carbs * ratio * 10) / 10,
-        fat: Math.round(food.fat * ratio * 10) / 10
-      };
-    }).filter(Boolean);
-  }, [totalRiceQuantity, foodMap]);
+        calories: Math.round(nut.calories),
+        protein: Math.round(nut.protein * 10) / 10,
+        carbs: Math.round(nut.carbs * 10) / 10,
+        fat: Math.round(nut.fat * 10) / 10
+      });
+    }
+
+    return list;
+  }, [totalRiceCarbs, riceFood, foodMap]);
 
   return (
     <section className="bg-brand-card border border-brand-border rounded-2xl p-6 shadow-sm space-y-6">
@@ -60,10 +75,10 @@ export const CarbAlternativesTable: React.FC<CarbAlternativesTableProps> = ({
             <Wheat className="h-5 w-5 text-amber-500" /> Carb Alternatives Equivalents
           </h2>
           <p className="text-xs text-slate-500">
-            Portion size of alternative carb sources matching the total carbohydrates of your active White Rice ({totalRiceQuantity}g = {Math.round(totalRiceQuantity * 0.28 * 10) / 10}g carbs)
+            Portion size of alternative carb sources matching the total carbohydrates of your active White Rice ({safeRiceQty}g = {Math.round(totalRiceCarbs * 10) / 10}g carbs)
           </p>
         </div>
-        {totalRiceQuantity === 0 && (
+        {safeRiceQty <= 0 && (
           <span className="text-xs text-brand-accent font-semibold bg-brand-accent/10 border border-brand-accent/20 px-2.5 py-1 rounded-full">
             Add White Rice to menu to calculate swaps
           </span>
@@ -84,14 +99,14 @@ export const CarbAlternativesTable: React.FC<CarbAlternativesTableProps> = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-brand-border">
-            {totalRiceQuantity === 0 ? (
+            {safeRiceQty <= 0 ? (
               <tr>
                 <td colSpan={7} className="py-8 text-center text-slate-500 text-sm">
                   Select or increase White Rice quantity in the menu to display equivalent carbohydrate swaps.
                 </td>
               </tr>
             ) : (
-              carbAlternatives.map((alt: any) => (
+              carbAlternatives.map((alt) => (
                 <tr key={alt.food.id} className={`hover:bg-brand-bg/50 transition ${alt.food.id === 'white_rice' ? 'bg-brand-secondary/10 font-bold' : ''}`}>
                   <td className="py-4 px-6 text-brand-primary flex items-center gap-2">
                     {alt.food.id === 'white_rice' && <span className="h-1.5 w-1.5 rounded-full bg-brand-accent"></span>}

@@ -19,20 +19,26 @@ export const CustomFoodModal: React.FC<CustomFoodModalProps> = ({ onClose, onSav
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return alert('Food name is required');
-    if (servingSize <= 0) return alert('Serving size must be greater than zero');
+    if (!servingSize || isNaN(servingSize) || servingSize <= 0) return alert('Serving size must be greater than zero');
+
+    const safeServingSize = typeof servingSize === 'number' && !isNaN(servingSize) && servingSize > 0 ? servingSize : 100;
+    const safeCalories = typeof calories === 'number' && !isNaN(calories) ? Math.max(0, calories) : 0;
+    const safeProtein = typeof protein === 'number' && !isNaN(protein) ? Math.max(0, protein) : 0;
+    const safeCarbs = typeof carbs === 'number' && !isNaN(carbs) ? Math.max(0, carbs) : 0;
+    const safeFat = typeof fat === 'number' && !isNaN(fat) ? Math.max(0, fat) : 0;
 
     const newFood: FoodItem = {
       id: `custom_${Date.now()}`,
-      name: `${name} (Custom)`,
-      calories,
-      protein,
-      carbs,
-      fat,
-      servingSize,
+      name: `${name.trim()} (Custom)`,
+      calories: safeCalories,
+      protein: safeProtein,
+      carbs: safeCarbs,
+      fat: safeFat,
+      servingSize: safeServingSize,
       unit,
-      defaultQuantity: servingSize,
+      defaultQuantity: safeServingSize,
       minQuantity: 0,
-      maxQuantity: servingSize * 5,
+      maxQuantity: safeServingSize * 5,
       isFreeParameter: true,
       isMandatory: false,
       step: unit === 'g' || unit === 'ml' ? 10 : 1
@@ -86,7 +92,7 @@ export const CustomFoodModal: React.FC<CustomFoodModalProps> = ({ onClose, onSav
                 type="number"
                 required
                 min={1}
-                value={servingSize || ''}
+                value={servingSize}
                 onChange={(e) => setServingSize(Math.max(1, parseFloat(e.target.value) || 0))}
                 className="w-full bg-brand-bg border border-brand-border text-sm font-semibold rounded-lg px-3 py-2 outline-none focus:border-brand-accent text-brand-primary"
               />
@@ -101,7 +107,7 @@ export const CustomFoodModal: React.FC<CustomFoodModalProps> = ({ onClose, onSav
                 <input
                   type="number"
                   min={0}
-                  value={calories || ''}
+                  value={calories}
                   onChange={(e) => setCalories(Math.max(0, parseFloat(e.target.value) || 0))}
                   className="w-full bg-brand-bg border border-brand-border text-sm font-semibold rounded-lg px-3 py-2 outline-none focus:border-brand-accent text-brand-primary"
                 />
@@ -113,7 +119,7 @@ export const CustomFoodModal: React.FC<CustomFoodModalProps> = ({ onClose, onSav
                   type="number"
                   step="0.1"
                   min={0}
-                  value={protein || ''}
+                  value={protein}
                   onChange={(e) => setProtein(Math.max(0, parseFloat(e.target.value) || 0))}
                   className="w-full bg-brand-bg border border-brand-border text-sm font-semibold rounded-lg px-3 py-2 outline-none focus:border-brand-accent text-brand-primary"
                 />
@@ -125,7 +131,7 @@ export const CustomFoodModal: React.FC<CustomFoodModalProps> = ({ onClose, onSav
                   type="number"
                   step="0.1"
                   min={0}
-                  value={carbs || ''}
+                  value={carbs}
                   onChange={(e) => setCarbs(Math.max(0, parseFloat(e.target.value) || 0))}
                   className="w-full bg-brand-bg border border-brand-border text-sm font-semibold rounded-lg px-3 py-2 outline-none focus:border-brand-accent text-brand-primary"
                 />
@@ -137,7 +143,7 @@ export const CustomFoodModal: React.FC<CustomFoodModalProps> = ({ onClose, onSav
                   type="number"
                   step="0.1"
                   min={0}
-                  value={fat || ''}
+                  value={fat}
                   onChange={(e) => setFat(Math.max(0, parseFloat(e.target.value) || 0))}
                   className="w-full bg-brand-bg border border-brand-border text-sm font-semibold rounded-lg px-3 py-2 outline-none focus:border-brand-accent text-brand-primary"
                 />

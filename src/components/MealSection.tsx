@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Meal, FoodItem } from '../types/food';
 import { Trash2, Lock, Unlock, AlertTriangle } from 'lucide-react';
-import { getNutrition, getFoodLimits } from '../utils/solver';
+import { getNutrition, getFoodLimits, getSwapDetails } from '../utils/solver';
 import { SYSTEM_CONSTRAINTS } from '../utils/constraints';
 
 interface MealSectionProps {
@@ -127,7 +127,7 @@ export const MealSection: React.FC<MealSectionProps> = ({
                           step={food.step || 1}
                           min={limits.min}
                           max={limits.max}
-                          value={item.quantity === 0 ? '' : item.quantity}
+                          value={item.quantity}
                           onChange={(e) => {
                             const valStr = e.target.value;
                             if (valStr === '') {
@@ -185,44 +185,16 @@ export const MealSection: React.FC<MealSectionProps> = ({
               const swapFoodId = selectedSwaps[meal.id];
               if (!swapFoodId) return null;
 
-              const altFood = foodMap.get(swapFoodId);
-              const riceFood = foodMap.get('white_rice');
-              const riceInMeal = meal.foods.find(f => f.foodId === 'white_rice');
+              const swap = getSwapDetails(meal, swapFoodId, foodMap);
+              if (!swap) return null;
 
-              if (!altFood || !riceFood || !riceInMeal || riceInMeal.quantity <= 0) return null;
-              if (!riceFood.servingSize || riceFood.servingSize <= 0) return null;
-              if (!altFood.servingSize || altFood.servingSize <= 0) return null;
-
-              const riceQty = riceInMeal.quantity;
-              const riceCarbs = riceQty * (riceFood.carbs / riceFood.servingSize);
-              const altCarbDensity = altFood.carbs / altFood.servingSize;
-              const equivQty = altCarbDensity > 0 ? riceCarbs / altCarbDensity : 0;
-              
-              const step = 10;
-              const roundedQty = Math.round(equivQty / step) * step;
-
-              const riceRatio = riceQty / riceFood.servingSize;
-              const altRatio = roundedQty / altFood.servingSize;
-
-              const riceNut = {
-                calories: riceFood.calories * riceRatio,
-                protein: riceFood.protein * riceRatio,
-                carbs: riceFood.carbs * riceRatio,
-                fat: riceFood.fat * riceRatio
-              };
-
-              const altNut = {
-                calories: altFood.calories * altRatio,
-                protein: altFood.protein * altRatio,
-                carbs: altFood.carbs * altRatio,
-                fat: altFood.fat * altRatio
-              };
+              const { altFood, roundedQty, delta } = swap;
 
               const diff = {
-                calories: Math.round(altNut.calories - riceNut.calories),
-                protein: Math.round((altNut.protein - riceNut.protein) * 10) / 10,
-                carbs: Math.round((altNut.carbs - riceNut.carbs) * 10) / 10,
-                fat: Math.round((altNut.fat - riceNut.fat) * 10) / 10
+                calories: Math.round(delta.calories),
+                protein: Math.round(delta.protein * 10) / 10,
+                carbs: Math.round(delta.carbs * 10) / 10,
+                fat: Math.round(delta.fat * 10) / 10
               };
 
               const formatDiff = (val: number) => {
@@ -326,10 +298,17 @@ export const MealSection: React.FC<MealSectionProps> = ({
                 value={selectedSwaps[meal.id] || ""}
                 onChange={(e) => {
                   const val = e.target.value;
-                  setSelectedSwaps(prev => ({
-                    ...prev,
-                    [meal.id]: val
-                  }));
+                  setSelectedSwaps(prev => {
+                    if (!val) {
+                      const copy = { ...prev };
+                      delete copy[meal.id];
+                      return copy;
+                    }
+                    return {
+                      ...prev,
+                      [meal.id]: val
+                    };
+                  });
                 }}
                 className="bg-brand-card border border-brand-border text-sm font-semibold rounded-lg px-3 py-1.5 outline-none focus:border-brand-accent text-brand-primary disabled:opacity-50 w-full sm:w-56"
               >

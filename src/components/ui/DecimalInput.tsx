@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 
 interface DecimalInputProps {
@@ -16,14 +16,11 @@ export const DecimalInput: React.FC<DecimalInputProps> = ({
   min = 0,
   max = Infinity
 }) => {
-  const [localValue, setLocalValue] = useState(value.toFixed(1));
+  const safeValue = typeof value === 'number' && !isNaN(value) ? value : 0;
+  const [localValue, setLocalValue] = useState('');
   const [isFocused, setIsFocused] = useState(false);
 
-  useEffect(() => {
-    if (!isFocused) {
-      setLocalValue(value.toFixed(1));
-    }
-  }, [value, isFocused]);
+  const displayValue = isFocused ? localValue : safeValue.toFixed(1);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const valStr = e.target.value;
@@ -42,32 +39,38 @@ export const DecimalInput: React.FC<DecimalInputProps> = ({
 
   const handleFocus = () => {
     setIsFocused(true);
+    setLocalValue(safeValue.toFixed(1));
   };
 
   const handleBlur = () => {
     setIsFocused(false);
     const parsed = parseFloat(localValue);
     if (isNaN(parsed)) {
-      setLocalValue(value.toFixed(1));
+      setLocalValue(safeValue.toFixed(1));
     } else {
       const clamped = Math.max(min, Math.min(max, parsed));
-      setLocalValue(clamped.toFixed(1));
-      if (clamped !== value) {
-        onChange(clamped);
+      const rounded = Math.round(clamped * 10) / 10;
+      setLocalValue(rounded.toFixed(1));
+      if (rounded !== value) {
+        onChange(rounded);
       }
     }
   };
 
   const handleIncrement = () => {
-    const newVal = Math.max(min, Math.min(max, Math.round((value + 0.1) * 10) / 10));
+    const newVal = Math.max(min, Math.min(max, Math.round((safeValue + 0.1) * 10) / 10));
     onChange(newVal);
-    setLocalValue(newVal.toFixed(1));
+    if (isFocused) {
+      setLocalValue(newVal.toFixed(1));
+    }
   };
 
   const handleDecrement = () => {
-    const newVal = Math.max(min, Math.min(max, Math.round((value - 0.1) * 10) / 10));
+    const newVal = Math.max(min, Math.min(max, Math.round((safeValue - 0.1) * 10) / 10));
     onChange(newVal);
-    setLocalValue(newVal.toFixed(1));
+    if (isFocused) {
+      setLocalValue(newVal.toFixed(1));
+    }
   };
 
   return (
@@ -75,7 +78,7 @@ export const DecimalInput: React.FC<DecimalInputProps> = ({
       <input
         type="text"
         inputMode="decimal"
-        value={localValue}
+        value={displayValue}
         onChange={handleChange}
         onFocus={handleFocus}
         onBlur={handleBlur}

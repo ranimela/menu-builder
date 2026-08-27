@@ -1,6 +1,7 @@
 import React from 'react';
 import type { TargetMacros, TargetRatios, SolverResult, Meal, FoodItem } from '../types/food';
 import { Flame, AlertTriangle } from 'lucide-react';
+import { getNutrition } from '../utils/solver';
 
 interface NutritionalDashboardProps {
   actualTotals: TargetMacros;
@@ -21,20 +22,36 @@ export const NutritionalDashboard: React.FC<NutritionalDashboardProps> = ({
   activeMeals,
   foodDatabase
 }) => {
-  const caloriesPct = Math.min(100, (actualTotals.calories / targets.calories) * 100);
-  const proteinPct = Math.min(100, (actualTotals.protein / targets.protein) * 100);
-  const carbsPct = Math.min(100, (actualTotals.carbs / targets.carbs) * 100);
-  const fatPct = Math.min(100, (actualTotals.fat / targets.fat) * 100);
+  const safeTargetCal = targets?.calories && !isNaN(targets.calories) ? targets.calories : 0;
+  const safeTargetPro = targets?.protein && !isNaN(targets.protein) ? targets.protein : 0;
+  const safeTargetCarb = targets?.carbs && !isNaN(targets.carbs) ? targets.carbs : 0;
+  const safeTargetFat = targets?.fat && !isNaN(targets.fat) ? targets.fat : 0;
 
-  const calDelta = Math.round(actualTotals.calories - targets.calories);
-  const proDelta = Math.round((actualTotals.protein - targets.protein) * 10) / 10;
-  const carbDelta = Math.round((actualTotals.carbs - targets.carbs) * 10) / 10;
-  const fatDelta = Math.round((actualTotals.fat - targets.fat) * 10) / 10;
+  const safeActualCal = actualTotals?.calories && !isNaN(actualTotals.calories) ? actualTotals.calories : 0;
+  const safeActualPro = actualTotals?.protein && !isNaN(actualTotals.protein) ? actualTotals.protein : 0;
+  const safeActualCarb = actualTotals?.carbs && !isNaN(actualTotals.carbs) ? actualTotals.carbs : 0;
+  const safeActualFat = actualTotals?.fat && !isNaN(actualTotals.fat) ? actualTotals.fat : 0;
 
-  const actualCalRatio = weight > 0 ? Math.round((actualTotals.calories / weight) * 10) / 10 : 0;
-  const actualProRatio = weight > 0 ? Math.round((actualTotals.protein / weight) * 10) / 10 : 0;
-  const actualCarbRatio = weight > 0 ? Math.round((actualTotals.carbs / weight) * 10) / 10 : 0;
-  const actualFatRatio = weight > 0 ? Math.round((actualTotals.fat / weight) * 10) / 10 : 0;
+  const caloriesPct = safeTargetCal > 0 ? Math.min(100, Math.max(0, (safeActualCal / safeTargetCal) * 100)) : 0;
+  const proteinPct = safeTargetPro > 0 ? Math.min(100, Math.max(0, (safeActualPro / safeTargetPro) * 100)) : 0;
+  const carbsPct = safeTargetCarb > 0 ? Math.min(100, Math.max(0, (safeActualCarb / safeTargetCarb) * 100)) : 0;
+  const fatPct = safeTargetFat > 0 ? Math.min(100, Math.max(0, (safeActualFat / safeTargetFat) * 100)) : 0;
+
+  const calDelta = Math.round(safeActualCal - safeTargetCal) || 0;
+  const proDelta = (Math.round((safeActualPro - safeTargetPro) * 10) / 10) || 0;
+  const carbDelta = (Math.round((safeActualCarb - safeTargetCarb) * 10) / 10) || 0;
+  const fatDelta = (Math.round((safeActualFat - safeTargetFat) * 10) / 10) || 0;
+
+  const safeWeight = typeof weight === 'number' && !isNaN(weight) && weight > 0 ? weight : 0;
+  const targetCalRatio = safeWeight > 0 ? (Math.round((safeTargetCal / safeWeight) * 10) / 10) || 0 : 0;
+  const actualCalRatio = safeWeight > 0 ? (Math.round((safeActualCal / safeWeight) * 10) / 10) || 0 : 0;
+  const actualProRatio = safeWeight > 0 ? (Math.round((safeActualPro / safeWeight) * 10) / 10) || 0 : 0;
+  const actualCarbRatio = safeWeight > 0 ? (Math.round((safeActualCarb / safeWeight) * 10) / 10) || 0 : 0;
+  const actualFatRatio = safeWeight > 0 ? (Math.round((safeActualFat / safeWeight) * 10) / 10) || 0 : 0;
+
+  const safeTargetProRatio = typeof ratios?.proteinPerKg === 'number' && !isNaN(ratios.proteinPerKg) ? ratios.proteinPerKg : 0;
+  const safeTargetCarbRatio = typeof ratios?.carbsPerKg === 'number' && !isNaN(ratios.carbsPerKg) ? ratios.carbsPerKg : 0;
+  const safeTargetFatRatio = typeof ratios?.fatPerKg === 'number' && !isNaN(ratios.fatPerKg) ? ratios.fatPerKg : 0;
 
   const isUnreachable = solverResult.status === 'unreachable';
 
@@ -46,12 +63,12 @@ export const NutritionalDashboard: React.FC<NutritionalDashboardProps> = ({
       for (const item of meal.foods) {
         if (item.locked) {
           const food = foodMap.get(item.foodId);
-          if (food && food.servingSize > 0) {
-            const ratio = item.quantity / food.servingSize;
-            cal += food.calories * ratio;
-            pro += food.protein * ratio;
-            carb += food.carbs * ratio;
-            fat += food.fat * ratio;
+          if (food) {
+            const nut = getNutrition(food, item.quantity);
+            cal += nut.calories;
+            pro += nut.protein;
+            carb += nut.carbs;
+            fat += nut.fat;
           }
         }
       }
@@ -59,10 +76,10 @@ export const NutritionalDashboard: React.FC<NutritionalDashboardProps> = ({
     return { calories: cal, protein: pro, carbs: carb, fat: fat };
   }, [activeMeals, foodDatabase]);
 
-  const exceedsCal = lockedTotals.calories > targets.calories;
-  const exceedsPro = lockedTotals.protein > targets.protein;
-  const exceedsCarb = lockedTotals.carbs > targets.carbs;
-  const exceedsFat = lockedTotals.fat > targets.fat;
+  const exceedsCal = lockedTotals.calories > safeTargetCal;
+  const exceedsPro = lockedTotals.protein > safeTargetPro;
+  const exceedsCarb = lockedTotals.carbs > safeTargetCarb;
+  const exceedsFat = lockedTotals.fat > safeTargetFat;
   const hasExceededLocked = exceedsCal || exceedsPro || exceedsCarb || exceedsFat;
 
   return (
@@ -86,10 +103,10 @@ export const NutritionalDashboard: React.FC<NutritionalDashboardProps> = ({
               <h4 className="font-bold">Locked Items Exceed Targets</h4>
               <p className="text-xs text-rose-700 mt-1">
                 Your locked meal quantities are already greater than your daily targets:
-                {exceedsCal && ` Calories (Locked: ${Math.round(lockedTotals.calories)} kcal / Target: ${Math.round(targets.calories)} kcal)`}
-                {exceedsPro && ` Protein (Locked: ${Math.round(lockedTotals.protein)}g / Target: ${Math.round(targets.protein)}g)`}
-                {exceedsCarb && ` Carbs (Locked: ${Math.round(lockedTotals.carbs)}g / Target: ${Math.round(targets.carbs)}g)`}
-                {exceedsFat && ` Fat (Locked: ${Math.round(lockedTotals.fat)}g / Target: ${Math.round(targets.fat)}g)`}.
+                {exceedsCal && ` Calories (Locked: ${Math.round(lockedTotals.calories)} kcal / Target: ${Math.round(safeTargetCal)} kcal)`}
+                {exceedsPro && ` Protein (Locked: ${Math.round(lockedTotals.protein * 10) / 10}g / Target: ${Math.round(safeTargetPro * 10) / 10}g)`}
+                {exceedsCarb && ` Carbs (Locked: ${Math.round(lockedTotals.carbs * 10) / 10}g / Target: ${Math.round(safeTargetCarb * 10) / 10}g)`}
+                {exceedsFat && ` Fat (Locked: ${Math.round(lockedTotals.fat * 10) / 10}g / Target: ${Math.round(safeTargetFat * 10) / 10}g)`}.
                 Unlock some items or reduce locked portions to allow optimization.
               </p>
             </div>
@@ -103,7 +120,7 @@ export const NutritionalDashboard: React.FC<NutritionalDashboardProps> = ({
             <div>
               <h4 className="font-bold">Macro Targets Unreachable with Current Settings</h4>
               <p className="text-xs text-amber-700 mt-1">
-                The optimization solver is unable to perfectly reach target values. Protein delta: {proDelta > 0 ? `+${proDelta}` : proDelta}g, Carbs: {carbDelta > 0 ? `+${carbDelta}` : carbDelta}g. Try unlocking items (like Chicken Breast, Beef, or Rice) to allow the solver to balance the ratios dynamically.
+                The optimization solver is unable to perfectly reach target values. Protein delta: {proDelta > 0 ? `+${proDelta.toFixed(1)}` : proDelta.toFixed(1)}g, Carbs: {carbDelta > 0 ? `+${carbDelta.toFixed(1)}` : carbDelta.toFixed(1)}g. Try unlocking items (like Chicken Breast, Beef, or Rice) to allow the solver to balance the ratios dynamically.
               </p>
             </div>
           </div>
@@ -120,8 +137,8 @@ export const NutritionalDashboard: React.FC<NutritionalDashboardProps> = ({
                 </span>
               </div>
               <div className="flex items-baseline gap-1.5">
-                <span className="text-2xl font-extrabold text-orange-500">{Math.round(actualTotals.calories)}</span>
-                <span className="text-xs text-slate-500">/ {targets.calories} kcal</span>
+                <span className="text-2xl font-extrabold text-orange-500">{Math.round(safeActualCal)}</span>
+                <span className="text-xs text-slate-500">/ {Math.round(safeTargetCal)} kcal</span>
               </div>
             </div>
             <div className="w-full bg-slate-200 rounded-full h-2.5 mt-4 overflow-hidden">
@@ -138,12 +155,12 @@ export const NutritionalDashboard: React.FC<NutritionalDashboardProps> = ({
               <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-2">
                 <span>PROTEIN</span>
                 <span className={`${Math.abs(proDelta) > 3 ? 'text-rose-600 font-bold' : 'text-emerald-600 font-bold'}`}>
-                  {proDelta > 0 ? `+${proDelta}` : proDelta} g
+                  {proDelta > 0 ? `+${proDelta.toFixed(1)}` : proDelta.toFixed(1)} g
                 </span>
               </div>
               <div className="flex items-baseline gap-1.5">
-                <span className="text-2xl font-extrabold text-rose-500">{Math.round(actualTotals.protein * 10) / 10}</span>
-                <span className="text-xs text-slate-500">/ {targets.protein} g</span>
+                <span className="text-2xl font-extrabold text-rose-500">{Math.round(safeActualPro * 10) / 10}</span>
+                <span className="text-xs text-slate-500">/ {Math.round(safeTargetPro * 10) / 10} g</span>
               </div>
             </div>
             <div className="w-full bg-slate-200 rounded-full h-2.5 mt-4 overflow-hidden">
@@ -160,12 +177,12 @@ export const NutritionalDashboard: React.FC<NutritionalDashboardProps> = ({
               <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-2">
                 <span>CARBOHYDRATES</span>
                 <span className={`${Math.abs(carbDelta) > 5 ? 'text-rose-600 font-bold' : 'text-emerald-600 font-bold'}`}>
-                  {carbDelta > 0 ? `+${carbDelta}` : carbDelta} g
+                  {carbDelta > 0 ? `+${carbDelta.toFixed(1)}` : carbDelta.toFixed(1)} g
                 </span>
               </div>
               <div className="flex items-baseline gap-1.5">
-                <span className="text-2xl font-extrabold text-amber-600">{Math.round(actualTotals.carbs * 10) / 10}</span>
-                <span className="text-xs text-slate-500">/ {targets.carbs} g</span>
+                <span className="text-2xl font-extrabold text-amber-600">{Math.round(safeActualCarb * 10) / 10}</span>
+                <span className="text-xs text-slate-500">/ {Math.round(safeTargetCarb * 10) / 10} g</span>
               </div>
             </div>
             <div className="w-full bg-slate-200 rounded-full h-2.5 mt-4 overflow-hidden">
@@ -182,12 +199,12 @@ export const NutritionalDashboard: React.FC<NutritionalDashboardProps> = ({
               <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-2">
                 <span>FAT</span>
                 <span className={`${Math.abs(fatDelta) > 3 ? 'text-rose-600 font-bold' : 'text-emerald-600 font-bold'}`}>
-                  {fatDelta > 0 ? `+${fatDelta}` : fatDelta} g
+                  {fatDelta > 0 ? `+${fatDelta.toFixed(1)}` : fatDelta.toFixed(1)} g
                 </span>
               </div>
               <div className="flex items-baseline gap-1.5">
-                <span className="text-2xl font-extrabold text-sky-500">{Math.round(actualTotals.fat * 10) / 10}</span>
-                <span className="text-xs text-slate-500">/ {targets.fat} g</span>
+                <span className="text-2xl font-extrabold text-sky-500">{Math.round(safeActualFat * 10) / 10}</span>
+                <span className="text-xs text-slate-500">/ {Math.round(safeTargetFat * 10) / 10} g</span>
               </div>
             </div>
             <div className="w-full bg-slate-200 rounded-full h-2.5 mt-4 overflow-hidden">
@@ -204,22 +221,22 @@ export const NutritionalDashboard: React.FC<NutritionalDashboardProps> = ({
           {/* Cal ratio */}
           <div className="bg-brand-bg border border-brand-border p-4 rounded-xl flex flex-col justify-between">
             <span className="text-xs text-slate-500 font-semibold mb-2">CALORIES RATIO</span>
-            <span className="text-lg font-bold text-orange-500">{actualCalRatio.toFixed(1)} / {Math.round((targets.calories / weight) * 10) / 10} kcal/kg</span>
+            <span className="text-lg font-bold text-orange-500">{actualCalRatio.toFixed(1)} / {targetCalRatio.toFixed(1)} kcal/kg</span>
           </div>
           {/* Pro ratio */}
           <div className="bg-brand-bg border border-brand-border p-4 rounded-xl flex flex-col justify-between">
             <span className="text-xs text-slate-500 font-semibold mb-2">PROTEIN RATIO</span>
-            <span className="text-lg font-bold text-rose-500">{actualProRatio.toFixed(1)} / {ratios.proteinPerKg.toFixed(1)} g/kg</span>
+            <span className="text-lg font-bold text-rose-500">{actualProRatio.toFixed(1)} / {safeTargetProRatio.toFixed(1)} g/kg</span>
           </div>
           {/* Carb ratio */}
           <div className="bg-brand-bg border border-brand-border p-4 rounded-xl flex flex-col justify-between">
             <span className="text-xs text-slate-500 font-semibold mb-2">CARBS RATIO</span>
-            <span className="text-lg font-bold text-amber-600">{actualCarbRatio.toFixed(1)} / {ratios.carbsPerKg.toFixed(1)} g/kg</span>
+            <span className="text-lg font-bold text-amber-600">{actualCarbRatio.toFixed(1)} / {safeTargetCarbRatio.toFixed(1)} g/kg</span>
           </div>
           {/* Fat ratio */}
           <div className="bg-brand-bg border border-brand-border p-4 rounded-xl flex flex-col justify-between">
             <span className="text-xs text-slate-500 font-semibold mb-2">FAT RATIO</span>
-            <span className="text-lg font-bold text-sky-500">{actualFatRatio.toFixed(1)} / {ratios.fatPerKg.toFixed(1)} g/kg</span>
+            <span className="text-lg font-bold text-sky-500">{actualFatRatio.toFixed(1)} / {safeTargetFatRatio.toFixed(1)} g/kg</span>
           </div>
         </div>
       </section>

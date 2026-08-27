@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
-import type { FoodItem, Meal, TargetMacros, TargetRatios, SolverResult, UserProfile } from '../types/food';
-import { solveDayMenu, calculateTotals, getFoodLimits } from '../utils/solver';
+import type { FoodItem, Meal, TargetMacros, TargetRatios, SolverResult, UserProfile, DayPlan } from '../types/food';
+import { solveDayMenu, calculateMealTotals, getFoodLimits } from '../utils/solver';
 import defaultFoodDb from '../../foodItems.json';
 
 const FOOD_DATABASE = defaultFoodDb as FoodItem[];
@@ -57,14 +57,21 @@ function createDefaultMeals(dayId: 'sun_thu' | 'fri' | 'sat'): Meal[] {
       }
     ];
   } else {
+    // sun_thu & fri (OMAD regime)
     return [
       {
         id: 'omad_meal',
         name: 'OMAD Meal',
         foods: [
+          { foodId: 'chicken_breast', quantity: 250, locked: false },
           { foodId: 'white_rice', quantity: 200, locked: false },
+          { foodId: 'tortilla_wrap', quantity: 1, locked: false },
+          { foodId: 'hummus', quantity: 50, locked: false },
           { foodId: 'mixed_salad', quantity: 250, locked: false },
           { foodId: 'whey_protein', quantity: 1, locked: false },
+          { foodId: 'white_cheese_5', quantity: 150, locked: false },
+          { foodId: 'flax_seeds', quantity: 15, locked: false },
+          { foodId: 'pumpkin_seeds', quantity: 30, locked: false },
           { foodId: 'rice_cake', quantity: 1, locked: false },
           { foodId: 'jam', quantity: 20, locked: false },
           { foodId: 'raw_oats', quantity: 50, locked: false }
@@ -75,10 +82,16 @@ function createDefaultMeals(dayId: 'sun_thu' | 'fri' | 'sat'): Meal[] {
 }
 
 function computeTargetMacros(weight: number, ratios: TargetRatios): TargetMacros {
-  const protein = weight * ratios.proteinPerKg;
-  const carbs = weight * ratios.carbsPerKg;
-  const fat = weight * ratios.fatPerKg;
+  const safeWeight = typeof weight === 'number' && !isNaN(weight) && weight > 0 ? weight : 0;
+  const safeProRatio = ratios?.proteinPerKg && !isNaN(ratios.proteinPerKg) && ratios.proteinPerKg > 0 ? ratios.proteinPerKg : 0;
+  const safeCarbRatio = ratios?.carbsPerKg && !isNaN(ratios.carbsPerKg) && ratios.carbsPerKg > 0 ? ratios.carbsPerKg : 0;
+  const safeFatRatio = ratios?.fatPerKg && !isNaN(ratios.fatPerKg) && ratios.fatPerKg > 0 ? ratios.fatPerKg : 0;
+
+  const protein = safeWeight * safeProRatio;
+  const carbs = safeWeight * safeCarbRatio;
+  const fat = safeWeight * safeFatRatio;
   const calories = protein * 4 + carbs * 4 + fat * 9;
+
   return {
     calories: Math.round(calories * 10) / 10,
     protein: Math.round(protein * 10) / 10,
@@ -87,29 +100,31 @@ function computeTargetMacros(weight: number, ratios: TargetRatios): TargetMacros
   };
 }
 
-const DEFAULT_DAY_PLANS = {
-  sun_thu: {
-    dayId: 'sun_thu' as const,
-    name: 'Sunday - Thursday',
-    regime: 'OMAD' as const,
-    ratios: INITIAL_RATIOS.sun_thu,
-    meals: createDefaultMeals('sun_thu'),
-  },
-  fri: {
-    dayId: 'fri' as const,
-    name: 'Friday',
-    regime: 'OMAD' as const,
-    ratios: INITIAL_RATIOS.fri,
-    meals: createDefaultMeals('fri'),
-  },
-  sat: {
-    dayId: 'sat' as const,
-    name: 'Saturday',
-    regime: 'Lunch_Dinner' as const,
-    ratios: INITIAL_RATIOS.sat,
-    meals: createDefaultMeals('sat'),
-  }
-};
+function getDefaultDayPlans(): Record<'sun_thu' | 'fri' | 'sat', DayPlan> {
+  return {
+    sun_thu: {
+      dayId: 'sun_thu',
+      name: 'Sunday - Thursday',
+      regime: 'OMAD',
+      ratios: { ...INITIAL_RATIOS.sun_thu },
+      meals: createDefaultMeals('sun_thu'),
+    },
+    fri: {
+      dayId: 'fri',
+      name: 'Friday',
+      regime: 'OMAD',
+      ratios: { ...INITIAL_RATIOS.fri },
+      meals: createDefaultMeals('fri'),
+    },
+    sat: {
+      dayId: 'sat',
+      name: 'Saturday',
+      regime: 'Lunch_Dinner',
+      ratios: { ...INITIAL_RATIOS.sat },
+      meals: createDefaultMeals('sat'),
+    }
+  };
+}
 
 export function useMealPlanner() {
   const [profiles, setProfiles] = useState<UserProfile[]>(() => {
@@ -130,7 +145,9 @@ export function useMealPlanner() {
     try {
       const savedWeight = localStorage.getItem('meal_planner_weight');
       if (savedWeight) legacyWeight = Number(savedWeight);
-    } catch {}
+    } catch (e) {
+      console.debug('Failed to read legacy weight:', e);
+    }
 
     let legacyActiveDay: 'sun_thu' | 'fri' | 'sat' = 'sun_thu';
     try {
@@ -138,25 +155,33 @@ export function useMealPlanner() {
       if (savedActiveDay === 'sun_thu' || savedActiveDay === 'fri' || savedActiveDay === 'sat') {
         legacyActiveDay = savedActiveDay;
       }
-    } catch {}
+    } catch (e) {
+      console.debug('Failed to read legacy active day:', e);
+    }
 
     let legacyAutoSolve = true;
     try {
       const savedAutoSolve = localStorage.getItem('meal_planner_auto_solve');
       if (savedAutoSolve !== null) legacyAutoSolve = savedAutoSolve === 'true';
-    } catch {}
+    } catch (e) {
+      console.debug('Failed to read legacy auto solve:', e);
+    }
 
     let legacySelectedSwaps: Record<string, string> = {};
     try {
       const savedSelectedSwaps = localStorage.getItem('meal_planner_selected_swaps');
       if (savedSelectedSwaps) legacySelectedSwaps = JSON.parse(savedSelectedSwaps);
-    } catch {}
+    } catch (e) {
+      console.debug('Failed to read legacy selected swaps:', e);
+    }
 
-    let legacyDayPlans = DEFAULT_DAY_PLANS;
+    let legacyDayPlans = getDefaultDayPlans();
     try {
       const savedDayPlans = localStorage.getItem('meal_planner_day_plans');
       if (savedDayPlans) legacyDayPlans = JSON.parse(savedDayPlans);
-    } catch {}
+    } catch (e) {
+      console.debug('Failed to read legacy day plans:', e);
+    }
 
     let legacySolverFocus: 'balanced' | 'protein' | 'calories' = 'balanced';
     try {
@@ -164,7 +189,9 @@ export function useMealPlanner() {
       if (savedSolverFocus === 'balanced' || savedSolverFocus === 'protein' || savedSolverFocus === 'calories') {
         legacySolverFocus = savedSolverFocus;
       }
-    } catch {}
+    } catch (e) {
+      console.debug('Failed to read legacy solver focus:', e);
+    }
 
     const defaultProfile: UserProfile = {
       id: 'default',
@@ -186,7 +213,9 @@ export function useMealPlanner() {
       if (savedActiveProfileId) {
         return savedActiveProfileId;
       }
-    } catch {}
+    } catch (e) {
+      console.debug('Failed to read active profile id:', e);
+    }
     return 'default';
   });
 
@@ -198,7 +227,7 @@ export function useMealPlanner() {
       activeDay: 'sun_thu' as const,
       autoSolve: true,
       selectedSwaps: {},
-      dayPlans: DEFAULT_DAY_PLANS,
+      dayPlans: getDefaultDayPlans(),
       solverFocus: 'balanced' as const
     };
   }, [profiles, activeProfileId]);
@@ -289,29 +318,18 @@ export function useMealPlanner() {
     return [...FOOD_DATABASE, ...customFoods];
   }, [customFoods]);
 
-  useEffect(() => {
-    // Keep active swaps safe
-    updateActiveProfile(p => {
-      const activeSwaps = { ...p.selectedSwaps };
-      let changed = false;
-      const currentPlan = p.dayPlans[p.activeDay];
-      for (const key of Object.keys(activeSwaps)) {
-        if (!currentPlan.meals.some(m => m.id === key)) {
-          delete activeSwaps[key];
-          changed = true;
-        }
-      }
-      if (changed) {
-        return {
-          ...p,
-          selectedSwaps: activeSwaps
-        };
-      }
-      return p;
-    });
-  }, [activeDay]);
+  const currentPlan = useMemo(() => {
+    const defaultPlans = getDefaultDayPlans();
+    const plan = dayPlans?.[activeDay];
+    if (!plan) return defaultPlans[activeDay];
+    return {
+      ...defaultPlans[activeDay],
+      ...plan,
+      ratios: plan.ratios ? { ...defaultPlans[activeDay].ratios, ...plan.ratios } : defaultPlans[activeDay].ratios,
+      meals: Array.isArray(plan.meals) ? plan.meals : defaultPlans[activeDay].meals
+    };
+  }, [dayPlans, activeDay]);
 
-  const currentPlan = dayPlans[activeDay];
   const foodMap = useMemo(() => new Map(mergedFoodDatabase.map(f => [f.id, f])), [mergedFoodDatabase]);
 
   // Compute targets
@@ -321,62 +339,33 @@ export function useMealPlanner() {
 
   // Solver running & state evaluation
   const solverResult = useMemo<SolverResult>(() => {
-    return solveDayMenu(currentPlan.meals, mergedFoodDatabase, currentPlanTargets, activeDay, solverFocus);
-  }, [currentPlan.meals, currentPlanTargets, activeDay, mergedFoodDatabase, solverFocus]);
+    return solveDayMenu(currentPlan.meals, mergedFoodDatabase, currentPlanTargets, activeDay, solverFocus, selectedSwaps);
+  }, [currentPlan.meals, currentPlanTargets, activeDay, mergedFoodDatabase, solverFocus, selectedSwaps]);
 
   // If autoSolve is enabled, use optimized meals, else use raw plan meals
   const activeMeals = autoSolve ? solverResult.optimizedMeals : currentPlan.meals;
 
   // Compute actual daily nutrition totals from selected meals (including selected carb swaps)
   const actualTotals = useMemo(() => {
-    const totals = calculateTotals(activeMeals, mergedFoodDatabase);
-    
-    // Add the deltas from selected carb swaps in each meal
+    let calories = 0;
+    let protein = 0;
+    let carbs = 0;
+    let fat = 0;
+
     for (const meal of activeMeals) {
-      const swapFoodId = selectedSwaps[meal.id];
-      if (swapFoodId) {
-        const altFood = foodMap.get(swapFoodId);
-        const riceFood = foodMap.get('white_rice');
-        const riceInMeal = meal.foods.find(f => f.foodId === 'white_rice');
-
-        if (altFood && riceFood && riceInMeal && riceInMeal.quantity > 0) {
-          if (!riceFood.servingSize || riceFood.servingSize <= 0) continue;
-          if (!altFood.servingSize || altFood.servingSize <= 0) continue;
-
-          const riceQty = riceInMeal.quantity;
-          const riceCarbs = riceQty * (riceFood.carbs / riceFood.servingSize);
-          const altCarbDensity = altFood.carbs / altFood.servingSize;
-          const equivQty = altCarbDensity > 0 ? riceCarbs / altCarbDensity : 0;
-          
-          const step = 10;
-          const roundedQty = Math.round(equivQty / step) * step;
-
-          const riceRatio = riceQty / riceFood.servingSize;
-          const altRatio = roundedQty / altFood.servingSize;
-
-          const riceNut = {
-            calories: riceFood.calories * riceRatio,
-            protein: riceFood.protein * riceRatio,
-            carbs: riceFood.carbs * riceRatio,
-            fat: riceFood.fat * riceRatio
-          };
-
-          const altNut = {
-            calories: altFood.calories * altRatio,
-            protein: altFood.protein * altRatio,
-            carbs: altFood.carbs * altRatio,
-            fat: altFood.fat * altRatio
-          };
-
-          totals.calories += (altNut.calories - riceNut.calories);
-          totals.protein += (altNut.protein - riceNut.protein);
-          totals.carbs += (altNut.carbs - riceNut.carbs);
-          totals.fat += (altNut.fat - riceNut.fat);
-        }
-      }
+      const mealTotals = calculateMealTotals(meal, foodMap, selectedSwaps[meal.id]);
+      calories += mealTotals.calories;
+      protein += mealTotals.protein;
+      carbs += mealTotals.carbs;
+      fat += mealTotals.fat;
     }
 
-    return totals;
+    return {
+      calories: Math.round(calories * 10) / 10,
+      protein: Math.round(protein * 10) / 10,
+      carbs: Math.round(carbs * 10) / 10,
+      fat: Math.round(fat * 10) / 10,
+    };
   }, [activeMeals, selectedSwaps, foodMap]);
 
   const handlePlanChange = (updatedMeals: Meal[], updatedRatios?: TargetRatios) => {
@@ -397,9 +386,10 @@ export function useMealPlanner() {
   };
 
   const handleRatioChange = (key: keyof TargetRatios, val: number) => {
+    const safeVal = typeof val === 'number' && !isNaN(val) ? Math.max(0, val) : 0;
     const newRatios = {
       ...currentPlan.ratios,
-      [key]: Math.max(0, val)
+      [key]: safeVal
     };
     handlePlanChange(currentPlan.meals, newRatios);
   };
@@ -447,7 +437,8 @@ export function useMealPlanner() {
     if (!food) return;
 
     const limits = getFoodLimits(foodId, activeDay, mealId, food);
-    const safeQty = Math.max(0, Math.min(limits.max, qty));
+    const numQty = typeof qty === 'number' && !isNaN(qty) ? qty : 0;
+    const safeQty = Math.max(0, Math.min(limits.max, numQty));
 
     const updatedMeals = currentPlan.meals.map(meal => {
       if (meal.id === mealId) {
@@ -503,7 +494,7 @@ export function useMealPlanner() {
       activeDay: 'sun_thu',
       autoSolve: true,
       selectedSwaps: {},
-      dayPlans: DEFAULT_DAY_PLANS,
+      dayPlans: getDefaultDayPlans(),
       solverFocus: 'balanced'
     };
     setProfiles(prev => [...prev, newProfile]);
@@ -527,7 +518,7 @@ export function useMealPlanner() {
           activeDay: 'sun_thu',
           autoSolve: true,
           selectedSwaps: {},
-          dayPlans: DEFAULT_DAY_PLANS,
+          dayPlans: getDefaultDayPlans(),
           solverFocus: 'balanced'
         };
         setActiveProfileId('default');
