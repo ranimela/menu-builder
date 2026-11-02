@@ -1,73 +1,31 @@
-# React + TypeScript + Vite
+# Macro-Constrained Menu Generator
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A client-side React + TypeScript web application for building and optimizing daily meal plans against personalized macronutrient targets (`g/kg` body weight).
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Dynamic Macro Targets**: Calculates daily Calorie, Protein, Carbohydrate, and Fat targets from body weight and per-day `g/kg` ratios (`Sun–Thu`, `Friday`, `Saturday`).
+- **Coordinate-Descent Menu Solver**: Automatically adjusts unlocked food quantities to match target macros across `Balanced`, `Protein Priority`, and `Calorie Priority` focus modes.
+- **Multiple User Profiles**: Create, rename, switch, and delete local user profiles with isolated weights, targets, and meal plans stored in `localStorage`.
+- **Custom Foods & Carb Swaps**: Add custom foods shared across profiles and swap White Rice with equivalent carbohydrate alternatives.
 
-## React Compiler
+## Setup & Commands
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Requires Node.js (v22+ recommended) and `npm`:
 
-## Expanding the ESLint configuration
+```powershell
+# Install dependencies
+npm install
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+# Start development server
+npm run dev
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+# Run type-check and production build
+npm run build
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+# Run ESLint static analysis
+npm run lint
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Run unit tests
+npm test
 ```

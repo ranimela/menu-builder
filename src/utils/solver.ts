@@ -1,5 +1,5 @@
-import type { FoodItem, Meal, TargetMacros, SolverResult } from '../types/food';
-import { SYSTEM_CONSTRAINTS } from './constraints';
+import type { FoodItem, Meal, TargetMacros, SolverResult } from '../types/food.ts';
+import { SYSTEM_CONSTRAINTS } from './constraints.ts';
 
 // Helper to compute nutrition for a given quantity of a food item
 export function getNutrition(food: FoodItem, quantity: number) {
@@ -126,10 +126,12 @@ export function getFoodLimits(
   foodId: string,
   dayId: string,
   mealId: string,
-  baseFood?: FoodItem
+  _baseFood?: FoodItem
 ): { min: number; max: number } {
-  let min = (typeof baseFood?.minQuantity === 'number' && !isNaN(baseFood.minQuantity)) ? Math.max(0, baseFood.minQuantity) : 0;
-  let max = (typeof baseFood?.maxQuantity === 'number' && !isNaN(baseFood.maxQuantity) && baseFood.maxQuantity > 0) ? baseFood.maxQuantity : 99999;
+  void _baseFood;
+  // Enforce zero minimum limit (no negative values) and unconstrained upper limit
+  let min = 0;
+  let max = 99999;
 
   // Query declarative system constraints
   for (const constraint of SYSTEM_CONSTRAINTS) {

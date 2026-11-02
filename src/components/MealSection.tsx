@@ -127,7 +127,7 @@ export const MealSection: React.FC<MealSectionProps> = ({
                           step={food.step || 1}
                           min={limits.min}
                           max={limits.max}
-                          value={item.quantity}
+                          value={item.quantity === 0 ? '' : item.quantity}
                           onChange={(e) => {
                             const valStr = e.target.value;
                             if (valStr === '') {
@@ -289,7 +289,10 @@ export const MealSection: React.FC<MealSectionProps> = ({
               { id: 'potatoes', name: 'Potatoes' },
               { id: 'majadra', name: 'Majadra' },
               { id: 'raw_oats', name: 'Raw Oats' },
-              { id: 'cooked_lentils', name: 'Cooked Lentils' }
+              { id: 'cooked_lentils', name: 'Cooked Lentils' },
+              { id: 'spelt_pita', name: 'Spelt Pita' },
+              { id: 'rice_cake', name: 'Rice Cake' },
+              { id: 'buckwheat_cake', name: 'Buckwheat Cake' }
             ];
 
             return (

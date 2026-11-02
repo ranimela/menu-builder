@@ -36,7 +36,10 @@ export const CarbAlternativesTable: React.FC<CarbAlternativesTableProps> = ({
       'potatoes',
       'majadra',
       'raw_oats',
-      'cooked_lentils'
+      'cooked_lentils',
+      'spelt_pita',
+      'rice_cake',
+      'buckwheat_cake'
     ];
 
     if (!riceFood || !riceFood.servingSize || riceFood.servingSize <= 0) return [];

@@ -57,21 +57,14 @@ function createDefaultMeals(dayId: 'sun_thu' | 'fri' | 'sat'): Meal[] {
       }
     ];
   } else {
-    // sun_thu & fri (OMAD regime)
     return [
       {
         id: 'omad_meal',
         name: 'OMAD Meal',
         foods: [
-          { foodId: 'chicken_breast', quantity: 250, locked: false },
           { foodId: 'white_rice', quantity: 200, locked: false },
-          { foodId: 'tortilla_wrap', quantity: 1, locked: false },
-          { foodId: 'hummus', quantity: 50, locked: false },
           { foodId: 'mixed_salad', quantity: 250, locked: false },
           { foodId: 'whey_protein', quantity: 1, locked: false },
-          { foodId: 'white_cheese_5', quantity: 150, locked: false },
-          { foodId: 'flax_seeds', quantity: 15, locked: false },
-          { foodId: 'pumpkin_seeds', quantity: 30, locked: false },
           { foodId: 'rice_cake', quantity: 1, locked: false },
           { foodId: 'jam', quantity: 20, locked: false },
           { foodId: 'raw_oats', quantity: 50, locked: false }

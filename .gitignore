@@ -25,4 +25,11 @@ dist-ssr
 
 # Private API Keys
 api keys.txt
+.env*
+!.env.example
+
+# Pipeline QA & Backups
+/.qa/
+/.backup/
+/.plans/context-map.json
 
