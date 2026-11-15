@@ -143,9 +143,9 @@ export const CarbAlternativesTable: React.FC<CarbAlternativesTableProps> = ({
                       {alt.quantity} {alt.food.unit}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between text-xs gap-2">
-                    <span className="text-orange-500 font-semibold">{alt.calories} kcal</span>
-                    <div className="space-x-1.5 font-semibold">
+                  <div className="flex flex-wrap items-center justify-between text-xs gap-x-2 gap-y-1">
+                    <span className="text-orange-500 font-semibold tabular-nums">{alt.calories} kcal</span>
+                    <div className="space-x-1.5 font-semibold tabular-nums">
                       <span className="text-rose-500">{alt.protein}g P</span>
                       <span className="text-slate-400">/</span>
                       <span className="text-amber-600">{alt.carbs}g C</span>
@@ -164,16 +164,16 @@ export const CarbAlternativesTable: React.FC<CarbAlternativesTableProps> = ({
 
           {/* Desktop Table */}
           <div className="hidden md:block overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full table-fixed text-left border-collapse">
               <thead>
                 <tr className="bg-brand-bg text-slate-500 text-xs font-bold uppercase tracking-wider border-b border-brand-border">
-                  <th className="py-3 px-6">Food Name</th>
-                  <th className="py-3 px-6">Equivalent Portion</th>
-                  <th className="py-3 px-6">Calories</th>
-                  <th className="py-3 px-6">Protein</th>
-                  <th className="py-3 px-6">Carbs</th>
-                  <th className="py-3 px-6">Fats</th>
-                  <th className="py-3 px-6">Step Size</th>
+                  <th className="py-3 px-6 w-[24%]">Food Name</th>
+                  <th className="py-3 px-6 w-[18%]">Equivalent Portion</th>
+                  <th className="py-3 px-6 w-[12%]">Calories</th>
+                  <th className="py-3 px-6 w-[11%]">Protein</th>
+                  <th className="py-3 px-6 w-[11%]">Carbs</th>
+                  <th className="py-3 px-6 w-[11%]">Fats</th>
+                  <th className="py-3 px-6 w-[13%]">Step Size</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-brand-border">

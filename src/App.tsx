@@ -315,7 +315,7 @@ export const App: React.FC = () => {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-5 space-y-5">
+      <main className="w-full max-w-7xl min-w-0 mx-auto px-4 sm:px-6 lg:px-8 mt-5 space-y-5">
         <TargetConfigPanel
           weight={weight}
           setWeight={setWeight}

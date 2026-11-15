@@ -251,8 +251,8 @@ export const MealSection: React.FC<MealSectionProps> = ({
                         {renderRemoveButton(item.foodId)}
                       </div>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-orange-500 font-bold text-xs">
+                    <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+                      <span className="text-orange-500 font-bold text-xs tabular-nums">
                         {Math.round(nut.calories)} kcal
                       </span>
                       {renderMacros(nut)}
@@ -292,15 +292,15 @@ export const MealSection: React.FC<MealSectionProps> = ({
 
             {/* Desktop Table */}
             <div className="hidden md:block overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+              <table className="w-full table-fixed text-left border-collapse">
                 <thead>
                   <tr className="bg-brand-bg text-slate-500 text-xs font-bold uppercase tracking-wider border-b border-brand-border">
-                    <th className="py-3 px-6">Food Name</th>
-                    <th className="py-3 px-6">Quantity</th>
-                    <th className="py-3 px-6 text-center">Lock Portions</th>
-                    <th className="py-3 px-6">Calories</th>
-                    <th className="py-3 px-6">P / C / F</th>
-                    <th className="py-3 px-6 text-right">Actions</th>
+                    <th className="py-3 px-6 w-[30%]">Food Name</th>
+                    <th className="py-3 px-6 w-[18%]">Quantity</th>
+                    <th className="py-3 px-6 w-[10%] text-center">Lock Portions</th>
+                    <th className="py-3 px-6 w-[12%]">Calories</th>
+                    <th className="py-3 px-6 w-[22%]">P / C / F</th>
+                    <th className="py-3 px-6 w-[8%] text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-brand-border">
