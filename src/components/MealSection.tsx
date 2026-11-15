@@ -371,9 +371,9 @@ export const MealSection: React.FC<MealSectionProps> = ({
       })()}
 
       {/* Add food to meal controls */}
-      <div className="bg-brand-bg p-4 border-t border-brand-border flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Add food item:</span>
+      <div className="bg-brand-bg p-3 sm:p-4 border-t border-brand-border flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider shrink-0">Add food:</span>
           <select
             onChange={(e) => {
               if (e.target.value) {
@@ -381,7 +381,7 @@ export const MealSection: React.FC<MealSectionProps> = ({
                 e.target.value = '';
               }
             }}
-            className="bg-brand-card border border-brand-border text-sm font-semibold rounded-lg px-3 py-1.5 outline-none focus:border-brand-accent text-brand-primary w-full sm:w-64"
+            className="bg-brand-card border border-brand-border text-sm font-semibold rounded-lg px-2.5 py-1.5 outline-none focus:border-brand-accent text-brand-primary flex-1 min-w-0 sm:flex-none sm:w-64"
             defaultValue=""
           >
             <option value="" disabled>Select food item...</option>
@@ -393,8 +393,8 @@ export const MealSection: React.FC<MealSectionProps> = ({
           </select>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Carb Swap:</span>
+        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider shrink-0">Carb Swap:</span>
           {(() => {
             const hasRice = meal.foods.some(f => f.foodId === 'white_rice' && f.quantity > 0);
             const swapOptions = [
@@ -429,7 +429,7 @@ export const MealSection: React.FC<MealSectionProps> = ({
                     };
                   });
                 }}
-                className="bg-brand-card border border-brand-border text-sm font-semibold rounded-lg px-3 py-1.5 outline-none focus:border-brand-accent text-brand-primary disabled:opacity-50 w-full sm:w-56"
+                className="bg-brand-card border border-brand-border text-sm font-semibold rounded-lg px-2.5 py-1.5 outline-none focus:border-brand-accent text-brand-primary disabled:opacity-50 flex-1 min-w-0 sm:flex-none sm:w-56"
               >
                 <option value="">
                   {hasRice ? "Select swap alternative..." : "Add White Rice to enable swaps"}

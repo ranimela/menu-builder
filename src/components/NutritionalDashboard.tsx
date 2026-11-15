@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { TargetMacros, TargetRatios, SolverResult, Meal, FoodItem } from '../types/food';
-import { Flame, AlertTriangle } from 'lucide-react';
+import { Flame, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
 import { getNutrition } from '../utils/solver';
 
 interface NutritionalDashboardProps {
@@ -82,16 +82,42 @@ export const NutritionalDashboard: React.FC<NutritionalDashboardProps> = ({
   const exceedsFat = lockedTotals.fat > safeTargetFat;
   const hasExceededLocked = exceedsCal || exceedsPro || exceedsCarb || exceedsFat;
 
+  const [showDetails, setShowDetails] = useState<boolean>(() =>
+    typeof window !== 'undefined' ? window.innerWidth >= 768 : true
+  );
+
   return (
     <div className="space-y-4">
       {/* Target Progress Section */}
       <section className="bg-brand-card border border-brand-border rounded-2xl p-5 shadow-sm space-y-4">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-brand-border pb-3">
-          <div className="flex items-center gap-2">
-            <Flame className="h-5 w-5 text-brand-accent animate-pulse" />
-            <h2 className="text-base font-bold text-brand-primary">Nutritional Targets Dashboard</h2>
+        <div
+          className={`flex flex-wrap justify-between items-center gap-2 ${
+            showDetails || hasExceededLocked || isUnreachable ? 'border-b border-brand-border pb-3' : ''
+          }`}
+        >
+          <div>
+            <div className="flex items-center gap-2">
+              <Flame className="h-5 w-5 text-brand-accent animate-pulse" />
+              <h2 className="text-base font-bold text-brand-primary">Nutritional Targets Dashboard</h2>
+            </div>
+            <p className="text-xs text-slate-500">Real-time macro accumulation and g/kg ratio breakdown</p>
           </div>
-          <p className="text-xs text-slate-500">Real-time macro accumulation and g/kg ratio breakdown</p>
+          <button
+            type="button"
+            onClick={() => setShowDetails((prev) => !prev)}
+            aria-expanded={showDetails}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-border bg-brand-bg hover:border-brand-primary text-xs font-bold text-brand-primary transition cursor-pointer"
+          >
+            {showDetails ? (
+              <>
+                <ChevronUp className="h-3.5 w-3.5" /> Hide Details
+              </>
+            ) : (
+              <>
+                <ChevronDown className="h-3.5 w-3.5" /> Show Details
+              </>
+            )}
+          </button>
         </div>
 
         {/* Locked values exceeding targets diagnostics check */}
@@ -125,7 +151,9 @@ export const NutritionalDashboard: React.FC<NutritionalDashboardProps> = ({
           </div>
         )}
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {showDetails && (
+          <>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Calories */}
           <div className="bg-brand-bg border border-brand-border p-4 rounded-xl flex flex-col justify-between">
             <div>
@@ -238,6 +266,8 @@ export const NutritionalDashboard: React.FC<NutritionalDashboardProps> = ({
             <span className="text-sm font-bold text-sky-500">{actualFatRatio.toFixed(1)} / {safeTargetFatRatio.toFixed(1)} g/kg</span>
           </div>
         </div>
+          </>
+        )}
       </section>
     </div>
   );

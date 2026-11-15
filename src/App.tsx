@@ -205,8 +205,8 @@ export const App: React.FC = () => {
           </div>
         )}
 
-        <header className="border-b border-brand-border bg-brand-card/95 backdrop-blur-md sticky top-0 z-40 shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <header className="border-b border-brand-border bg-brand-card">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3 flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-3">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setIsSidebarOpen(true)}
@@ -258,8 +258,10 @@ export const App: React.FC = () => {
           </div>
         </div>
 
+        </header>
+
         {/* Sticky Macro Summary Strip */}
-        <div className="border-t border-brand-border bg-brand-bg/80">
+        <div className="sticky top-0 z-40 border-b border-brand-border bg-brand-card/95 backdrop-blur-md shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex flex-wrap items-center justify-between gap-2 text-xs">
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-bold">
               <span className="text-orange-500">
@@ -313,7 +315,6 @@ export const App: React.FC = () => {
             </div>
           </div>
         </div>
-      </header>
 
       <main className="w-full max-w-7xl min-w-0 mx-auto px-4 sm:px-6 lg:px-8 mt-5 space-y-5">
         <TargetConfigPanel
@@ -355,7 +356,7 @@ export const App: React.FC = () => {
             )}
             
             {/* Focus Options Selector */}
-            <div className="flex items-center gap-2 border-l border-brand-border pl-4">
+            <div className="flex items-center gap-2 sm:border-l sm:border-brand-border sm:pl-4">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Focus:</span>
               <select
                 value={solverFocus}
@@ -367,24 +368,9 @@ export const App: React.FC = () => {
                 <option value="calories">🔥 Calorie Priority</option>
               </select>
             </div>
-
-            {/* Solver status pill */}
-            <div className="flex items-center gap-1.5 border-l border-brand-border pl-4">
-              {isOptimal ? (
-                <span className="bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-xs px-2.5 py-1 rounded-full font-bold flex items-center gap-1">
-                  <CheckCircle className="h-3.5 h-3.5 text-emerald-500" />
-                  Optimal Match
-                </span>
-              ) : (
-                <span className="bg-amber-500/10 text-amber-600 border border-amber-500/20 text-xs px-2.5 py-1 rounded-full font-bold flex items-center gap-1 animate-pulse">
-                  <AlertTriangle className="h-3.5 h-3.5 text-amber-500" />
-                  Targets Unreachable
-                </span>
-              )}
-            </div>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <div className="flex items-center border border-brand-border rounded-lg bg-brand-bg overflow-hidden">
               <button
                 onClick={() => setIsCustomFoodOpen(true)}
