@@ -117,57 +117,104 @@ export const CarbAlternativesTable: React.FC<CarbAlternativesTableProps> = ({
       </div>
 
       {isExpanded && (
-        <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-brand-bg text-slate-500 text-xs font-bold uppercase tracking-wider border-b border-brand-border">
-              <th className="py-3 px-6">Food Name</th>
-              <th className="py-3 px-6">Equivalent Portion</th>
-              <th className="py-3 px-6">Calories</th>
-              <th className="py-3 px-6">Protein</th>
-              <th className="py-3 px-6">Carbs</th>
-              <th className="py-3 px-6">Fats</th>
-              <th className="py-3 px-6">Step Size</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-brand-border">
+        <>
+          {/* Mobile Stacked Cards */}
+          <div className="md:hidden divide-y divide-brand-border border border-brand-border rounded-xl overflow-hidden">
             {safeRiceQty <= 0 ? (
-              <tr>
-                <td colSpan={7} className="py-8 text-center text-slate-500 text-sm">
-                  Select or increase White Rice quantity in the menu to display equivalent carbohydrate swaps.
-                </td>
-              </tr>
+              <div className="py-8 px-4 text-center text-slate-500 text-sm">
+                Select or increase White Rice quantity in the menu to display equivalent carbohydrate swaps.
+              </div>
             ) : (
               carbAlternatives.map((alt) => (
-                <tr key={alt.food.id} className={`hover:bg-brand-bg/50 transition ${alt.food.id === 'white_rice' ? 'bg-brand-secondary/10 font-bold' : ''}`}>
-                  <td className="py-4 px-6 text-brand-primary flex items-center gap-2">
-                    {alt.food.id === 'white_rice' && <span className="h-1.5 w-1.5 rounded-full bg-brand-accent"></span>}
-                    {alt.food.name}
-                  </td>
-                  <td className="py-4 px-6 text-brand-primary font-semibold">
-                    {alt.quantity} {alt.food.unit}
-                  </td>
-                  <td className="py-4 px-6 text-orange-500 font-medium">
-                    {alt.calories} kcal
-                  </td>
-                  <td className="py-4 px-6 text-rose-500">
-                    {alt.protein}g
-                  </td>
-                  <td className="py-4 px-6 text-amber-600">
-                    {alt.carbs}g
-                  </td>
-                  <td className="py-4 px-6 text-sky-500">
-                    {alt.fat}g
-                  </td>
-                  <td className="py-4 px-6 text-xs text-slate-500 font-medium">
-                    {alt.food.step ? `${alt.food.step}${alt.food.unit}` : '10g'}
-                  </td>
-                </tr>
+                <div
+                  key={alt.food.id}
+                  className={`p-3.5 space-y-1.5 ${
+                    alt.food.id === 'white_rice' ? 'bg-brand-secondary/10 font-bold' : ''
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-brand-primary text-sm font-semibold flex items-center gap-1.5 min-w-0 truncate">
+                      {alt.food.id === 'white_rice' && (
+                        <span className="h-1.5 w-1.5 rounded-full bg-brand-accent shrink-0" />
+                      )}
+                      <span className="truncate">{alt.food.name}</span>
+                    </span>
+                    <span className="text-brand-primary font-bold text-sm shrink-0">
+                      {alt.quantity} {alt.food.unit}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs gap-2">
+                    <span className="text-orange-500 font-semibold">{alt.calories} kcal</span>
+                    <div className="space-x-1.5 font-semibold">
+                      <span className="text-rose-500">{alt.protein}g P</span>
+                      <span className="text-slate-400">/</span>
+                      <span className="text-amber-600">{alt.carbs}g C</span>
+                      <span className="text-slate-400">/</span>
+                      <span className="text-sky-500">{alt.fat}g F</span>
+                      <span className="text-slate-400">·</span>
+                      <span className="text-slate-500">
+                        step {alt.food.step ? `${alt.food.step}${alt.food.unit}` : '10g'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               ))
             )}
-          </tbody>
-        </table>
-      </div>
+          </div>
+
+          {/* Desktop Table */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-brand-bg text-slate-500 text-xs font-bold uppercase tracking-wider border-b border-brand-border">
+                  <th className="py-3 px-6">Food Name</th>
+                  <th className="py-3 px-6">Equivalent Portion</th>
+                  <th className="py-3 px-6">Calories</th>
+                  <th className="py-3 px-6">Protein</th>
+                  <th className="py-3 px-6">Carbs</th>
+                  <th className="py-3 px-6">Fats</th>
+                  <th className="py-3 px-6">Step Size</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-brand-border">
+                {safeRiceQty <= 0 ? (
+                  <tr>
+                    <td colSpan={7} className="py-8 text-center text-slate-500 text-sm">
+                      Select or increase White Rice quantity in the menu to display equivalent carbohydrate swaps.
+                    </td>
+                  </tr>
+                ) : (
+                  carbAlternatives.map((alt) => (
+                    <tr key={alt.food.id} className={`hover:bg-brand-bg/50 transition ${alt.food.id === 'white_rice' ? 'bg-brand-secondary/10 font-bold' : ''}`}>
+                      <td className="py-4 px-6 text-brand-primary flex items-center gap-2">
+                        {alt.food.id === 'white_rice' && <span className="h-1.5 w-1.5 rounded-full bg-brand-accent"></span>}
+                        {alt.food.name}
+                      </td>
+                      <td className="py-4 px-6 text-brand-primary font-semibold">
+                        {alt.quantity} {alt.food.unit}
+                      </td>
+                      <td className="py-4 px-6 text-orange-500 font-medium">
+                        {alt.calories} kcal
+                      </td>
+                      <td className="py-4 px-6 text-rose-500">
+                        {alt.protein}g
+                      </td>
+                      <td className="py-4 px-6 text-amber-600">
+                        {alt.carbs}g
+                      </td>
+                      <td className="py-4 px-6 text-sky-500">
+                        {alt.fat}g
+                      </td>
+                      <td className="py-4 px-6 text-xs text-slate-500 font-medium">
+                        {alt.food.step ? `${alt.food.step}${alt.food.unit}` : '10g'}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </section>
   );
