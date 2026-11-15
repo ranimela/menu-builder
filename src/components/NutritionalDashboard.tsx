@@ -83,16 +83,15 @@ export const NutritionalDashboard: React.FC<NutritionalDashboardProps> = ({
   const hasExceededLocked = exceedsCal || exceedsPro || exceedsCarb || exceedsFat;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Target Progress Section */}
-      <section className="bg-brand-card border border-brand-border rounded-2xl p-6 shadow-sm space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-brand-border pb-4">
-          <div>
-            <h2 className="text-lg font-bold text-brand-primary flex items-center gap-2">
-              <Flame className="h-5 w-5 text-brand-accent animate-pulse" /> Nutritional Targets Dashboard
-            </h2>
-            <p className="text-xs text-slate-500">Real-time macro accumulation monitoring and ratio breakdown</p>
+      <section className="bg-brand-card border border-brand-border rounded-2xl p-5 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-brand-border pb-3">
+          <div className="flex items-center gap-2">
+            <Flame className="h-5 w-5 text-brand-accent animate-pulse" />
+            <h2 className="text-base font-bold text-brand-primary">Nutritional Targets Dashboard</h2>
           </div>
+          <p className="text-xs text-slate-500">Real-time macro accumulation and g/kg ratio breakdown</p>
         </div>
 
         {/* Locked values exceeding targets diagnostics check */}
@@ -126,9 +125,9 @@ export const NutritionalDashboard: React.FC<NutritionalDashboardProps> = ({
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Calories */}
-          <div className="bg-brand-bg border border-brand-border p-5 rounded-xl flex flex-col justify-between">
+          <div className="bg-brand-bg border border-brand-border p-4 rounded-xl flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-2">
                 <span>CALORIES</span>
@@ -150,7 +149,7 @@ export const NutritionalDashboard: React.FC<NutritionalDashboardProps> = ({
           </div>
 
           {/* Protein */}
-          <div className="bg-brand-bg border border-brand-border p-5 rounded-xl flex flex-col justify-between">
+          <div className="bg-brand-bg border border-brand-border p-4 rounded-xl flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-2">
                 <span>PROTEIN</span>
@@ -172,7 +171,7 @@ export const NutritionalDashboard: React.FC<NutritionalDashboardProps> = ({
           </div>
 
           {/* Carbs */}
-          <div className="bg-brand-bg border border-brand-border p-5 rounded-xl flex flex-col justify-between">
+          <div className="bg-brand-bg border border-brand-border p-4 rounded-xl flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-2">
                 <span>CARBOHYDRATES</span>
@@ -194,7 +193,7 @@ export const NutritionalDashboard: React.FC<NutritionalDashboardProps> = ({
           </div>
 
           {/* Fat */}
-          <div className="bg-brand-bg border border-brand-border p-5 rounded-xl flex flex-col justify-between">
+          <div className="bg-brand-bg border border-brand-border p-4 rounded-xl flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-2">
                 <span>FAT</span>
@@ -217,26 +216,26 @@ export const NutritionalDashboard: React.FC<NutritionalDashboardProps> = ({
         </div>
 
         {/* Ratio Deltas */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 border-t border-brand-border pt-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 border-t border-brand-border pt-4">
           {/* Cal ratio */}
-          <div className="bg-brand-bg border border-brand-border p-4 rounded-xl flex flex-col justify-between">
-            <span className="text-xs text-slate-500 font-semibold mb-2">CALORIES RATIO</span>
-            <span className="text-lg font-bold text-orange-500">{actualCalRatio.toFixed(1)} / {targetCalRatio.toFixed(1)} kcal/kg</span>
+          <div className="bg-brand-bg border border-brand-border px-3.5 py-2.5 rounded-xl flex items-center justify-between gap-2">
+            <span className="text-[11px] text-slate-500 font-semibold">CALORIES</span>
+            <span className="text-sm font-bold text-orange-500">{actualCalRatio.toFixed(1)} / {targetCalRatio.toFixed(1)} kcal/kg</span>
           </div>
           {/* Pro ratio */}
-          <div className="bg-brand-bg border border-brand-border p-4 rounded-xl flex flex-col justify-between">
-            <span className="text-xs text-slate-500 font-semibold mb-2">PROTEIN RATIO</span>
-            <span className="text-lg font-bold text-rose-500">{actualProRatio.toFixed(1)} / {safeTargetProRatio.toFixed(1)} g/kg</span>
+          <div className="bg-brand-bg border border-brand-border px-3.5 py-2.5 rounded-xl flex items-center justify-between gap-2">
+            <span className="text-[11px] text-slate-500 font-semibold">PROTEIN</span>
+            <span className="text-sm font-bold text-rose-500">{actualProRatio.toFixed(1)} / {safeTargetProRatio.toFixed(1)} g/kg</span>
           </div>
           {/* Carb ratio */}
-          <div className="bg-brand-bg border border-brand-border p-4 rounded-xl flex flex-col justify-between">
-            <span className="text-xs text-slate-500 font-semibold mb-2">CARBS RATIO</span>
-            <span className="text-lg font-bold text-amber-600">{actualCarbRatio.toFixed(1)} / {safeTargetCarbRatio.toFixed(1)} g/kg</span>
+          <div className="bg-brand-bg border border-brand-border px-3.5 py-2.5 rounded-xl flex items-center justify-between gap-2">
+            <span className="text-[11px] text-slate-500 font-semibold">CARBS</span>
+            <span className="text-sm font-bold text-amber-600">{actualCarbRatio.toFixed(1)} / {safeTargetCarbRatio.toFixed(1)} g/kg</span>
           </div>
           {/* Fat ratio */}
-          <div className="bg-brand-bg border border-brand-border p-4 rounded-xl flex flex-col justify-between">
-            <span className="text-xs text-slate-500 font-semibold mb-2">FAT RATIO</span>
-            <span className="text-lg font-bold text-sky-500">{actualFatRatio.toFixed(1)} / {safeTargetFatRatio.toFixed(1)} g/kg</span>
+          <div className="bg-brand-bg border border-brand-border px-3.5 py-2.5 rounded-xl flex items-center justify-between gap-2">
+            <span className="text-[11px] text-slate-500 font-semibold">FAT</span>
+            <span className="text-sm font-bold text-sky-500">{actualFatRatio.toFixed(1)} / {safeTargetFatRatio.toFixed(1)} g/kg</span>
           </div>
         </div>
       </section>

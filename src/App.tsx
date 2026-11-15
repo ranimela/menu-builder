@@ -197,8 +197,8 @@ export const App: React.FC = () => {
           </div>
         )}
 
-        <header className="border-b border-brand-border bg-brand-card/90 backdrop-blur-md sticky top-[inherit] z-40 shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <header className="border-b border-brand-border bg-brand-card/95 backdrop-blur-md sticky top-0 z-40 shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setIsSidebarOpen(true)}
@@ -207,18 +207,18 @@ export const App: React.FC = () => {
               >
                 <Users className="h-5 w-5" />
               </button>
-              <div className="bg-gradient-to-tr from-brand-accent to-brand-secondary p-2.5 rounded-xl shadow-lg">
-                <Sparkles className="h-6 w-6 text-brand-primary animate-pulse" />
+              <div className="bg-gradient-to-tr from-brand-accent to-brand-secondary p-2 rounded-xl shadow-md">
+                <Sparkles className="h-5 w-5 text-brand-primary animate-pulse" />
               </div>
               <div>
-                <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-brand-primary via-brand-accent to-brand-primary bg-clip-text text-transparent">
+                <h1 className="text-lg sm:text-xl font-bold tracking-tight bg-gradient-to-r from-brand-primary via-brand-accent to-brand-primary bg-clip-text text-transparent">
                   Macro-Constrained Menu Generator
                 </h1>
-                <p className="text-xs text-slate-500">Calculate targets dynamically from your weight and g/kg ratios</p>
+                <p className="text-xs text-slate-500 hidden sm:block">Calculate targets dynamically from your weight and g/kg ratios</p>
               </div>
             </div>
           
-          <div className="flex bg-brand-bg p-1.5 rounded-xl border border-brand-border">
+          <div className="flex bg-brand-bg p-1 rounded-xl border border-brand-border">
             {(['sun_thu', 'fri', 'sat'] as const).map((dayId) => {
               const isActive = activeDay === dayId;
               const name = dayId === 'sun_thu' ? 'Sun-Thu' : dayId === 'fri' ? 'Friday' : 'Saturday';
@@ -227,7 +227,7 @@ export const App: React.FC = () => {
                   key={dayId}
                   id={`tab-btn-${dayId}`}
                   onClick={() => setActiveDay(dayId)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${
+                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-semibold transition-all duration-300 ${
                     isActive 
                       ? 'bg-brand-primary text-white shadow-sm' 
                       : 'text-slate-600 hover:text-brand-primary hover:bg-brand-card'
@@ -240,9 +240,52 @@ export const App: React.FC = () => {
             })}
           </div>
         </div>
+
+        {/* Sticky Macro Summary Strip */}
+        <div className="border-t border-brand-border bg-brand-bg/80">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-bold">
+              <span className="text-orange-500">
+                {Math.round(actualTotals.calories)}{' '}
+                <span className="text-slate-500 font-semibold">/ {Math.round(currentPlanTargets.calories)} kcal</span>
+              </span>
+              <span className="text-rose-500">
+                P: {Math.round(actualTotals.protein * 10) / 10}
+                <span className="text-slate-500 font-semibold"> / {Math.round(currentPlanTargets.protein * 10) / 10}g</span>
+              </span>
+              <span className="text-amber-600">
+                C: {Math.round(actualTotals.carbs * 10) / 10}
+                <span className="text-slate-500 font-semibold"> / {Math.round(currentPlanTargets.carbs * 10) / 10}g</span>
+              </span>
+              <span className="text-sky-500">
+                F: {Math.round(actualTotals.fat * 10) / 10}
+                <span className="text-slate-500 font-semibold"> / {Math.round(currentPlanTargets.fat * 10) / 10}g</span>
+              </span>
+            </div>
+            <span
+              className={`px-2 py-0.5 rounded-full font-bold flex items-center gap-1 ${
+                isOptimal
+                  ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
+                  : 'bg-amber-500/10 text-amber-600 border border-amber-500/20'
+              }`}
+            >
+              {isOptimal ? (
+                <>
+                  <CheckCircle className="h-3 w-3 text-emerald-500" />
+                  Optimal Match
+                </>
+              ) : (
+                <>
+                  <AlertTriangle className="h-3 w-3 text-amber-500" />
+                  Targets Unreachable
+                </>
+              )}
+            </span>
+          </div>
+        </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 space-y-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-5 space-y-5">
         <TargetConfigPanel
           weight={weight}
           setWeight={setWeight}

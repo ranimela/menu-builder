@@ -17,66 +17,67 @@ export const TargetConfigPanel: React.FC<TargetConfigPanelProps> = ({
   onRatioChange
 }) => {
   return (
-    <div className="bg-brand-card border border-brand-border rounded-2xl p-6 shadow-sm space-y-6">
-      <div className="flex items-center justify-between border-b border-brand-border pb-4">
-        <h2 className="text-lg font-bold text-brand-primary">Set Targets & Weight</h2>
+    <section className="bg-brand-card border border-brand-border rounded-2xl px-4 py-3 shadow-sm">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-sm font-bold text-brand-primary shrink-0">
+          <Beef className="h-4 w-4 text-brand-secondary" />
+          <span>Targets &amp; Weight</span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 flex-1 lg:max-w-3xl">
+          {/* Weight */}
+          <div className="bg-brand-bg/70 px-3 py-2 rounded-xl border border-brand-border flex items-center justify-between gap-2">
+            <span className="text-xs font-semibold text-brand-primary shrink-0">Weight</span>
+            <div className="flex items-center gap-1 min-w-0 w-24">
+              <DecimalInput
+                value={weight}
+                onChange={setWeight}
+                className="w-full bg-brand-card border border-brand-border focus:border-brand-accent text-sm font-bold px-2 py-1 rounded-lg text-brand-primary outline-none"
+              />
+              <span className="text-[11px] text-slate-500 shrink-0">kg</span>
+            </div>
+          </div>
+
+          {/* Protein Ratio */}
+          <div className="bg-brand-bg/70 px-3 py-2 rounded-xl border border-brand-border flex items-center justify-between gap-2">
+            <span className="text-xs font-semibold text-rose-500 shrink-0">Protein</span>
+            <div className="flex items-center gap-1 min-w-0 w-24">
+              <DecimalInput
+                value={ratios.proteinPerKg}
+                onChange={(val) => onRatioChange('proteinPerKg', val)}
+                className="w-full bg-brand-card border border-brand-border focus:border-brand-accent text-sm font-bold px-2 py-1 rounded-lg text-brand-primary outline-none"
+              />
+              <span className="text-[11px] text-slate-500 shrink-0">g/kg</span>
+            </div>
+          </div>
+
+          {/* Carbs Ratio */}
+          <div className="bg-brand-bg/70 px-3 py-2 rounded-xl border border-brand-border flex items-center justify-between gap-2">
+            <span className="text-xs font-semibold text-amber-600 shrink-0">Carbs</span>
+            <div className="flex items-center gap-1 min-w-0 w-24">
+              <DecimalInput
+                value={ratios.carbsPerKg}
+                onChange={(val) => onRatioChange('carbsPerKg', val)}
+                className="w-full bg-brand-card border border-brand-border focus:border-brand-accent text-sm font-bold px-2 py-1 rounded-lg text-brand-primary outline-none"
+              />
+              <span className="text-[11px] text-slate-500 shrink-0">g/kg</span>
+            </div>
+          </div>
+
+          {/* Fat Ratio */}
+          <div className="bg-brand-bg/70 px-3 py-2 rounded-xl border border-brand-border flex items-center justify-between gap-2">
+            <span className="text-xs font-semibold text-sky-500 shrink-0">Fat</span>
+            <div className="flex items-center gap-1 min-w-0 w-24">
+              <DecimalInput
+                value={ratios.fatPerKg}
+                onChange={(val) => onRatioChange('fatPerKg', val)}
+                className="w-full bg-brand-card border border-brand-border focus:border-brand-accent text-sm font-bold px-2 py-1 rounded-lg text-brand-primary outline-none"
+              />
+              <span className="text-[11px] text-slate-500 shrink-0">g/kg</span>
+            </div>
+          </div>
+        </div>
       </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {/* Weight */}
-        <div className="bg-brand-bg/60 p-4 rounded-xl border border-brand-border flex flex-col justify-between">
-          <div className="text-brand-primary text-sm font-semibold mb-2 flex items-center gap-2">
-            <Beef className="h-4 w-4 text-brand-secondary" /> Body Weight
-          </div>
-          <div className="flex items-end gap-1">
-            <DecimalInput
-              value={weight}
-              onChange={setWeight}
-              className="w-full bg-brand-card border border-brand-border focus:border-brand-accent text-lg font-bold px-2 py-1 rounded-lg text-brand-primary outline-none"
-            />
-            <span className="text-xs text-slate-500 pb-2">kg</span>
-          </div>
-        </div>
-
-        {/* Protein Ratio */}
-        <div className="bg-brand-bg/60 p-4 rounded-xl border border-brand-border flex flex-col justify-between">
-          <div className="text-rose-500 text-sm font-semibold mb-2">Protein (g/kg)</div>
-          <div className="flex items-end gap-1">
-            <DecimalInput
-              value={ratios.proteinPerKg}
-              onChange={(val) => onRatioChange('proteinPerKg', val)}
-              className="w-full bg-brand-card border border-brand-border focus:border-brand-accent text-lg font-bold px-2 py-1 rounded-lg text-brand-primary outline-none"
-            />
-            <span className="text-xs text-slate-500 pb-2">g/kg</span>
-          </div>
-        </div>
-
-        {/* Carbs Ratio */}
-        <div className="bg-brand-bg/60 p-4 rounded-xl border border-brand-border flex flex-col justify-between">
-          <div className="text-amber-500 text-sm font-semibold mb-2">Carbs (g/kg)</div>
-          <div className="flex items-end gap-1">
-            <DecimalInput
-              value={ratios.carbsPerKg}
-              onChange={(val) => onRatioChange('carbsPerKg', val)}
-              className="w-full bg-brand-card border border-brand-border focus:border-brand-accent text-lg font-bold px-2 py-1 rounded-lg text-brand-primary outline-none"
-            />
-            <span className="text-xs text-slate-500 pb-2">g/kg</span>
-          </div>
-        </div>
-
-        {/* Fat Ratio */}
-        <div className="bg-brand-bg/60 p-4 rounded-xl border border-brand-border flex flex-col justify-between">
-          <div className="text-sky-500 text-sm font-semibold mb-2">Fat (g/kg)</div>
-          <div className="flex items-end gap-1">
-            <DecimalInput
-              value={ratios.fatPerKg}
-              onChange={(val) => onRatioChange('fatPerKg', val)}
-              className="w-full bg-brand-card border border-brand-border focus:border-brand-accent text-lg font-bold px-2 py-1 rounded-lg text-brand-primary outline-none"
-            />
-            <span className="text-xs text-slate-500 pb-2">g/kg</span>
-          </div>
-        </div>
-      </div>
-    </div>
+    </section>
   );
 };
