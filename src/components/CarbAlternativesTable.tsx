@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { FoodItem } from '../types/food';
-import { Wheat } from 'lucide-react';
+import { Wheat, ChevronDown, ChevronUp } from 'lucide-react';
 import { getNutrition } from '../utils/solver';
 
 interface CarbAlternativesTableProps {
@@ -21,6 +21,7 @@ export const CarbAlternativesTable: React.FC<CarbAlternativesTableProps> = ({
   totalRiceQuantity,
   foodMap
 }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
   const safeRiceQty = typeof totalRiceQuantity === 'number' && !isNaN(totalRiceQuantity) && totalRiceQuantity > 0 ? totalRiceQuantity : 0;
   const riceFood = foodMap.get('white_rice');
   const riceCarbsPerServing = (riceFood && riceFood.servingSize > 0) ? ((riceFood.carbs || 0) / riceFood.servingSize) : 0.28;
@@ -72,23 +73,51 @@ export const CarbAlternativesTable: React.FC<CarbAlternativesTableProps> = ({
 
   return (
     <section className="bg-brand-card border border-brand-border rounded-2xl p-6 shadow-sm space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-brand-border pb-4">
+      <div
+        className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 ${
+          isExpanded ? 'border-b border-brand-border pb-4' : ''
+        }`}
+      >
         <div>
           <h2 className="text-lg font-bold text-brand-primary flex items-center gap-2">
             <Wheat className="h-5 w-5 text-amber-500" /> Carb Alternatives Equivalents
+            {carbAlternatives.length > 0 && (
+              <span className="text-xs font-semibold text-slate-500 bg-brand-bg border border-brand-border px-2 py-0.5 rounded-full">
+                {carbAlternatives.length} options
+              </span>
+            )}
           </h2>
           <p className="text-xs text-slate-500">
             Portion size of alternative carb sources matching the total carbohydrates of your active White Rice ({safeRiceQty}g = {Math.round(totalRiceCarbs * 10) / 10}g carbs)
           </p>
         </div>
-        {safeRiceQty <= 0 && (
-          <span className="text-xs text-brand-accent font-semibold bg-brand-accent/10 border border-brand-accent/20 px-2.5 py-1 rounded-full">
-            Add White Rice to menu to calculate swaps
-          </span>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          {safeRiceQty <= 0 && (
+            <span className="text-xs text-brand-accent font-semibold bg-brand-accent/10 border border-brand-accent/20 px-2.5 py-1 rounded-full">
+              Add White Rice to menu to calculate swaps
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => setIsExpanded((prev) => !prev)}
+            aria-expanded={isExpanded}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-border bg-brand-bg hover:border-brand-primary text-xs font-bold text-brand-primary transition cursor-pointer"
+          >
+            {isExpanded ? (
+              <>
+                <ChevronUp className="h-3.5 w-3.5" /> Hide Table
+              </>
+            ) : (
+              <>
+                <ChevronDown className="h-3.5 w-3.5" /> Show Table
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
-      <div className="overflow-x-auto">
+      {isExpanded && (
+        <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-brand-bg text-slate-500 text-xs font-bold uppercase tracking-wider border-b border-brand-border">
@@ -139,6 +168,7 @@ export const CarbAlternativesTable: React.FC<CarbAlternativesTableProps> = ({
           </tbody>
         </table>
       </div>
+      )}
     </section>
   );
 };

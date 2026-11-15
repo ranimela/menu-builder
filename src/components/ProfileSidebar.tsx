@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Plus, Trash2, Edit2, Check, X, Users } from 'lucide-react';
+import { User, Plus, Trash2, Edit2, Check, X, Users, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import type { UserProfile } from '../types/food';
 
 interface ProfileSidebarProps {
@@ -10,6 +10,8 @@ interface ProfileSidebarProps {
   onDeleteProfile: (id: string) => void;
   onRenameProfile: (id: string, name: string) => void;
   onCloseMobile?: () => void;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
@@ -19,7 +21,9 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
   onCreateProfile,
   onDeleteProfile,
   onRenameProfile,
-  onCloseMobile
+  onCloseMobile,
+  isCollapsed = false,
+  onToggleCollapse
 }) => {
   const [isCreating, setIsCreating] = useState(false);
   const [newProfileName, setNewProfileName] = useState('');
@@ -42,6 +46,60 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
     }
   };
 
+  if (isCollapsed) {
+    return (
+      <div className="flex flex-col items-center h-full bg-brand-card border-r border-brand-border text-brand-primary py-3 gap-3">
+        {onToggleCollapse && (
+          <button
+            type="button"
+            onClick={onToggleCollapse}
+            className="p-2 hover:bg-brand-bg rounded-xl border border-brand-border transition text-slate-500 hover:text-brand-primary cursor-pointer"
+            title="Expand Profiles"
+            aria-label="Expand Profiles"
+          >
+            <PanelLeftOpen className="h-4 w-4" />
+          </button>
+        )}
+        <div className="flex-1 overflow-y-auto w-full flex flex-col items-center gap-2 px-2">
+          {profiles.map((profile) => {
+            const isActive = profile.id === activeProfileId;
+            const initial = profile.name.trim().charAt(0).toUpperCase() || 'U';
+            return (
+              <button
+                key={profile.id}
+                type="button"
+                onClick={() => onSelectProfile(profile.id)}
+                title={`${profile.name} (${profile.weight}kg)`}
+                aria-label={`Select profile ${profile.name}`}
+                className={`w-9 h-9 rounded-full text-xs font-bold flex items-center justify-center transition cursor-pointer shrink-0 ${
+                  isActive
+                    ? 'bg-brand-primary text-white shadow-md'
+                    : 'bg-brand-bg border border-brand-border text-slate-600 hover:border-brand-primary hover:text-brand-primary'
+                }`}
+              >
+                {initial}
+              </button>
+            );
+          })}
+        </div>
+        {onToggleCollapse && (
+          <button
+            type="button"
+            onClick={() => {
+              onToggleCollapse();
+              setIsCreating(true);
+            }}
+            className="p-2 border border-dashed border-brand-accent/40 text-brand-accent hover:bg-brand-accent/5 rounded-xl transition cursor-pointer"
+            title="Create Profile"
+            aria-label="Create Profile"
+          >
+            <Plus className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-full bg-brand-card border-r border-brand-border text-brand-primary">
       {/* Sidebar Header */}
@@ -50,15 +108,28 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
           <Users className="h-5 w-5 text-brand-accent" />
           <span>User Profiles</span>
         </div>
-        {onCloseMobile && (
-          <button
-            onClick={onCloseMobile}
-            className="md:hidden p-1 hover:bg-brand-bg rounded-lg transition text-slate-500 hover:text-brand-primary"
-            aria-label="Close Sidebar"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        )}
+        <div className="flex items-center gap-1">
+          {onToggleCollapse && (
+            <button
+              type="button"
+              onClick={onToggleCollapse}
+              className="hidden md:inline-flex p-1 hover:bg-brand-bg rounded-lg transition text-slate-500 hover:text-brand-primary cursor-pointer"
+              title="Collapse Sidebar"
+              aria-label="Collapse Sidebar"
+            >
+              <PanelLeftClose className="h-5 w-5" />
+            </button>
+          )}
+          {onCloseMobile && (
+            <button
+              onClick={onCloseMobile}
+              className="md:hidden p-1 hover:bg-brand-bg rounded-lg transition text-slate-500 hover:text-brand-primary"
+              aria-label="Close Sidebar"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Profile List */}

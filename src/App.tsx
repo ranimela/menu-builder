@@ -53,6 +53,7 @@ export const App: React.FC = () => {
   const [isManageFoodsOpen, setIsManageFoodsOpen] = useState(false);
   const [showUpdateBanner, setShowUpdateBanner] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isDesktopSidebarCollapsed, setIsDesktopSidebarCollapsed] = useState(false);
   const [authState, setAuthState] = useState<AuthState>(() => getAuthState());
 
   // Check for service worker updates
@@ -146,6 +147,7 @@ export const App: React.FC = () => {
   };
 
   const isOptimal = solverResult.status === 'optimal';
+  const activeProfile = profiles.find((p) => p.id === activeProfileId);
 
   if (!authState.isUnlocked || authState.isBlocked) {
     return <PasswordGate authState={authState} onAuthChange={setAuthState} />;
@@ -154,7 +156,11 @@ export const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-brand-bg text-brand-primary font-sans flex">
       {/* Sidebar for Desktop */}
-      <aside className="hidden md:block w-64 shrink-0 h-screen sticky top-0">
+      <aside
+        className={`hidden md:block shrink-0 h-screen sticky top-0 transition-all duration-200 ${
+          isDesktopSidebarCollapsed ? 'w-14' : 'w-64'
+        }`}
+      >
         <ProfileSidebar
           profiles={profiles}
           activeProfileId={activeProfileId}
@@ -162,6 +168,8 @@ export const App: React.FC = () => {
           onCreateProfile={handleCreateProfile}
           onDeleteProfile={handleDeleteProfile}
           onRenameProfile={handleRenameProfile}
+          isCollapsed={isDesktopSidebarCollapsed}
+          onToggleCollapse={() => setIsDesktopSidebarCollapsed((prev) => !prev)}
         />
       </aside>
 
@@ -218,26 +226,35 @@ export const App: React.FC = () => {
               </div>
             </div>
           
-          <div className="flex bg-brand-bg p-1 rounded-xl border border-brand-border">
-            {(['sun_thu', 'fri', 'sat'] as const).map((dayId) => {
-              const isActive = activeDay === dayId;
-              const name = dayId === 'sun_thu' ? 'Sun-Thu' : dayId === 'fri' ? 'Friday' : 'Saturday';
-              return (
-                <button
-                  key={dayId}
-                  id={`tab-btn-${dayId}`}
-                  onClick={() => setActiveDay(dayId)}
-                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-semibold transition-all duration-300 ${
-                    isActive 
-                      ? 'bg-brand-primary text-white shadow-sm' 
-                      : 'text-slate-600 hover:text-brand-primary hover:bg-brand-card'
-                  }`}
-                >
-                  <Calendar className="h-4 w-4" />
-                  {name}
-                </button>
-              );
-            })}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex bg-brand-bg p-1 rounded-xl border border-brand-border">
+              {(['sun_thu', 'fri', 'sat'] as const).map((dayId) => {
+                const isActive = activeDay === dayId;
+                const name = dayId === 'sun_thu' ? 'Sun-Thu' : dayId === 'fri' ? 'Friday' : 'Saturday';
+                return (
+                  <button
+                    key={dayId}
+                    id={`tab-btn-${dayId}`}
+                    onClick={() => setActiveDay(dayId)}
+                    className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-semibold transition-all duration-300 ${
+                      isActive 
+                        ? 'bg-brand-primary text-white shadow-sm' 
+                        : 'text-slate-600 hover:text-brand-primary hover:bg-brand-card'
+                    }`}
+                  >
+                    <Calendar className="h-4 w-4" />
+                    {name}
+                  </button>
+                );
+              })}
+            </div>
+            <button
+              onClick={() => setAuthState(lockApp())}
+              className="flex items-center gap-1.5 bg-brand-bg hover:bg-rose-500/10 hover:text-rose-600 hover:border-rose-500/30 border border-brand-border text-xs font-bold px-3 py-2 rounded-xl transition text-slate-600 cursor-pointer"
+              title="Lock application"
+            >
+              <Lock className="h-3.5 w-3.5" /> Lock
+            </button>
           </div>
         </div>
 
@@ -262,25 +279,38 @@ export const App: React.FC = () => {
                 <span className="text-slate-500 font-semibold"> / {Math.round(currentPlanTargets.fat * 10) / 10}g</span>
               </span>
             </div>
-            <span
-              className={`px-2 py-0.5 rounded-full font-bold flex items-center gap-1 ${
-                isOptimal
-                  ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
-                  : 'bg-amber-500/10 text-amber-600 border border-amber-500/20'
-              }`}
-            >
-              {isOptimal ? (
-                <>
-                  <CheckCircle className="h-3 w-3 text-emerald-500" />
-                  Optimal Match
-                </>
-              ) : (
-                <>
-                  <AlertTriangle className="h-3 w-3 text-amber-500" />
-                  Targets Unreachable
-                </>
+            <div className="flex items-center gap-2">
+              {activeProfile && isDesktopSidebarCollapsed && (
+                <button
+                  type="button"
+                  onClick={() => setIsDesktopSidebarCollapsed(false)}
+                  className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-brand-card border border-brand-border hover:border-brand-primary font-semibold text-brand-primary transition cursor-pointer"
+                  title="Expand Profiles Sidebar"
+                >
+                  <Users className="h-3 w-3 text-brand-accent" />
+                  Profile: {activeProfile.name} ({activeProfile.weight}kg)
+                </button>
               )}
-            </span>
+              <span
+                className={`px-2 py-0.5 rounded-full font-bold flex items-center gap-1 ${
+                  isOptimal
+                    ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
+                    : 'bg-amber-500/10 text-amber-600 border border-amber-500/20'
+                }`}
+              >
+                {isOptimal ? (
+                  <>
+                    <CheckCircle className="h-3 w-3 text-emerald-500" />
+                    Optimal Match
+                  </>
+                ) : (
+                  <>
+                    <AlertTriangle className="h-3 w-3 text-amber-500" />
+                    Targets Unreachable
+                  </>
+                )}
+              </span>
+            </div>
           </div>
         </div>
       </header>
@@ -381,13 +411,6 @@ export const App: React.FC = () => {
               className="flex items-center gap-1 bg-brand-primary text-white hover:bg-brand-primary/95 text-xs font-bold px-3 py-1.5 rounded-lg transition"
             >
               <Share2 className="h-3.5 w-3.5" /> Export to Keep
-            </button>
-            <button
-              onClick={() => setAuthState(lockApp())}
-              className="flex items-center gap-1 bg-brand-bg hover:bg-rose-500/10 hover:text-rose-600 hover:border-rose-500/30 border border-brand-border text-xs font-bold px-3 py-1.5 rounded-lg transition text-slate-600"
-              title="Lock application"
-            >
-              <Lock className="h-3.5 w-3.5" /> Lock
             </button>
           </div>
         </section>
