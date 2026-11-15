@@ -8,7 +8,7 @@
       "sizes": "any"
     }
   ],
-  "start_url": "/menu-builder/",
+  "start_url": "/",
   "background_color": "#f8fafc",
   "theme_color": "#1a2238",
   "display": "standalone",

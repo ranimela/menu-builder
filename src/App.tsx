@@ -7,8 +7,10 @@ import { CarbAlternativesTable } from './components/CarbAlternativesTable';
 import { CustomFoodModal } from './components/CustomFoodModal';
 import { ManageCustomFoodsModal } from './components/ManageCustomFoodsModal';
 import { ProfileSidebar } from './components/ProfileSidebar';
-import { Sparkles, Calendar, Share2, RefreshCw, AlertTriangle, CheckCircle, PlusCircle, ArrowUpCircle, Settings, Users } from 'lucide-react';
+import { PasswordGate } from './components/PasswordGate';
+import { Sparkles, Calendar, Share2, RefreshCw, AlertTriangle, CheckCircle, PlusCircle, ArrowUpCircle, Settings, Users, Lock } from 'lucide-react';
 import { calculateMealTotals, getNutrition, getSwapDetails } from './utils/solver';
+import { getAuthState, lockApp, type AuthState } from './utils/auth';
 
 export const App: React.FC = () => {
   const {
@@ -51,6 +53,7 @@ export const App: React.FC = () => {
   const [isManageFoodsOpen, setIsManageFoodsOpen] = useState(false);
   const [showUpdateBanner, setShowUpdateBanner] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [authState, setAuthState] = useState<AuthState>(() => getAuthState());
 
   // Check for service worker updates
   useEffect(() => {
@@ -143,6 +146,10 @@ export const App: React.FC = () => {
   };
 
   const isOptimal = solverResult.status === 'optimal';
+
+  if (!authState.isUnlocked || authState.isBlocked) {
+    return <PasswordGate authState={authState} onAuthChange={setAuthState} />;
+  }
 
   return (
     <div className="min-h-screen bg-brand-bg text-brand-primary font-sans flex">
@@ -331,6 +338,13 @@ export const App: React.FC = () => {
               className="flex items-center gap-1 bg-brand-primary text-white hover:bg-brand-primary/95 text-xs font-bold px-3 py-1.5 rounded-lg transition"
             >
               <Share2 className="h-3.5 w-3.5" /> Export to Keep
+            </button>
+            <button
+              onClick={() => setAuthState(lockApp())}
+              className="flex items-center gap-1 bg-brand-bg hover:bg-rose-500/10 hover:text-rose-600 hover:border-rose-500/30 border border-brand-border text-xs font-bold px-3 py-1.5 rounded-lg transition text-slate-600"
+              title="Lock application"
+            >
+              <Lock className="h-3.5 w-3.5" /> Lock
             </button>
           </div>
         </section>

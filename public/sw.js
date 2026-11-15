@@ -1,9 +1,9 @@
-const CACHE_NAME = 'menu-builder-v4';
+const CACHE_NAME = 'menu-builder-v5';
 const ASSETS = [
-  '/menu-builder/',
-  '/menu-builder/index.html',
-  '/menu-builder/favicon.svg',
-  '/menu-builder/manifest.json'
+  '/',
+  '/index.html',
+  '/favicon.svg',
+  '/manifest.json'
 ];
 
 self.addEventListener('install', (event) => {
@@ -55,7 +55,7 @@ self.addEventListener('fetch', (event) => {
             return cachedResponse;
           }
           if (event.request.mode === 'navigate') {
-            return caches.match('/menu-builder/index.html');
+            return caches.match('/index.html');
           }
         });
       })
